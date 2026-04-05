@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Program Files/**)",
+      "Read(//c/Users/Pc/**)",
+      "Read(//usr/local/bin/**)",
+      "Bash(command -v node)",
+      "Bash(find /c -name node.exe)",
+      "mcp__Claude_Preview__preview_start",
+      "WebFetch(domain:share.google)",
+      "WebFetch(domain:www.google.com)",
+      "Bash(gh auth:*)",
+      "Bash(where gh:*)"
+    ]
+  }
+}

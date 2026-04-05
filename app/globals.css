@@ -1,0 +1,112 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --terracotta: #B5451B;
+  --sand: #F5E6C8;
+  --charcoal: #1A1A2E;
+  --gold: #D4A843;
+  --cream: #FAFAFA;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-cream text-charcoal antialiased;
+    font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-terracotta text-white font-semibold rounded-xl transition-all duration-200 hover:bg-terracotta-dark hover:shadow-glow hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-charcoal font-semibold rounded-xl border border-sand-dark transition-all duration-200 hover:border-terracotta hover:text-terracotta hover:shadow-card;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 text-white font-semibold rounded-xl border border-white/30 backdrop-blur-sm transition-all duration-200 hover:bg-white/10 hover:border-white/60;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-card transition-all duration-300 hover:shadow-card-hover;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl font-bold text-charcoal;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-charcoal/60 max-w-2xl mx-auto;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 bg-white border border-sand-dark rounded-xl text-charcoal placeholder:text-charcoal/40 focus:outline-none focus:ring-2 focus:ring-terracotta/30 focus:border-terracotta transition-all duration-200;
+  }
+
+  .zellige-bg {
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4A843' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .moroccan-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23B5451B' fill-opacity='0.04'%3E%3Cpath d='M40 0L0 40l40 40 40-40L40 0zm0 8l32 32-32 32L8 40 40 8z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F5E6C8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #B5451B;
+  border-radius: 3px;
+}
+
+/* Floating WhatsApp pulse */
+@keyframes whatsapp-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}
+
+.whatsapp-pulse {
+  animation: whatsapp-pulse 2.5s ease-in-out infinite;
+}
