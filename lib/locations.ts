@@ -59,7 +59,7 @@ export const MOROCCO_LOCATIONS: { name: string; city: string; type: 'hotel' | 'r
   { name: 'Riu Tikida Garden Marrakech', city: 'Marrakech', type: 'hotel' },
   { name: 'Labranda Rose Aqua Parc', city: 'Marrakech', type: 'hotel' },
   { name: 'Opera Plaza Hotel Marrakech', city: 'Marrakech', type: 'hotel' },
-  { name: 'Le Méridien N'Fis Marrakech', city: 'Marrakech', type: 'hotel' },
+  { name: "Le Méridien N'Fis Marrakech", city: 'Marrakech', type: 'hotel' },
   { name: 'Vizir Center Parc & Aqua', city: 'Marrakech', type: 'hotel' },
   { name: 'Riad Yasmine', city: 'Marrakech', type: 'riad' },
   { name: 'Riad BE Marrakech', city: 'Marrakech', type: 'riad' },
