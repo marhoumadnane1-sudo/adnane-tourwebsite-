@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               description: "Transport touristique privé agréé au Maroc. Transferts aéroport CMN, trajets ville à ville, location avec chauffeur.",
               url: "https://nigor2transport.ma",
               telephone: "+212661659607",
-              email: "contact@nigor2transport.ma",
+              email: "nigor2.car@gmail.com",
               address: {
                 "@type": "PostalAddress",
                 streetAddress: "Ain Borja",
