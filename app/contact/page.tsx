@@ -73,15 +73,15 @@ export default function ContactPage() {
               {
                 icon: Clock,
                 label: "Availability",
-                value: "24 hours a day, 7 days a week",
+                value: CONTACT.hours,
                 href: null,
                 color: "bg-gold",
                 external: false,
               },
               {
                 icon: MapPin,
-                label: "Coverage",
-                value: "All of Morocco — Nationwide Service",
+                label: "Address",
+                value: CONTACT.address,
                 href: null,
                 color: "bg-charcoal",
                 external: false,

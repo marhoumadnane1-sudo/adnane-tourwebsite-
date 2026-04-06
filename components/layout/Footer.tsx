@@ -68,7 +68,7 @@ export function Footer() {
               </a>
               <div className="flex items-center gap-2 text-white/70 text-sm">
                 <MapPin className="w-4 h-4 text-terracotta flex-shrink-0" />
-                Morocco — Nationwide Service
+                {CONTACT.address}
               </div>
             </div>
             <div className="flex items-center gap-3 mt-6">
@@ -146,12 +146,26 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-white/40 text-sm text-center md:text-left">
-            © {new Date().getFullYear()} NIGOR 2Transport. All rights reserved.
-          </p>
-          <p className="text-white/30 text-xs text-center">
-            Licensed private transport operator in Morocco
+      </div>
+
+      {/* License bar */}
+      <div className="border-t border-white/10 bg-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gold/10 border border-gold/20 rounded-lg">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+              <span className="text-xs font-semibold text-gold">
+                Transport Touristique Agréé au Maroc
+              </span>
+            </div>
+            <span className="text-xs text-white/30">
+              Dossier N° {CONTACT.license} · {CONTACT.company}
+            </span>
+          </div>
+          <p className="text-xs text-white/30">
+            © {new Date().getFullYear()} NIGOR 2Transport. Tous droits réservés.
           </p>
         </div>
       </div>

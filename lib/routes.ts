@@ -71,9 +71,11 @@ export const DAY_TRIP_ITINERARIES = [
 ];
 
 export const CONTACT = {
-  phone: "+212 6XX XXX XXX",        // ← Owner: replace with real number
-  whatsapp: "212600000000",          // ← Owner: replace with real number (no + or spaces)
-  email: "contact@nigor2transport.ma",
-  address: "Casablanca, Morocco",
-  hours: "24/7 — We never close",
+  phone: '+212 661 659 607',
+  whatsapp: '212661659607',
+  email: 'contact@nigor2transport.ma',
+  address: 'Ain Borja, Casablanca, Maroc',
+  hours: '24/7 — Nous ne fermons jamais',
+  license: '1754/T/2018',
+  company: 'Carolina Prestige Travel',
 };
