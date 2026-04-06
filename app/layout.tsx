@@ -55,7 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
               name: "NIGOR 2Transport",
-              alternateName: "Carolina Prestige Travel",
+              alternateName: "NIGOR 2Transport",
               description: "Transport touristique privé agréé au Maroc. Transferts aéroport CMN, trajets ville à ville, location avec chauffeur.",
               url: "https://nigor2transport.ma",
               telephone: "+212661659607",
