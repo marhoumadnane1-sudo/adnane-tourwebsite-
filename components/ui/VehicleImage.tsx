@@ -32,7 +32,7 @@ export default function VehicleImage({
     return (
       <div
         className={`absolute inset-0 flex flex-col items-center justify-center gap-3 ${className}`}
-        style={{ background: `linear-gradient(135deg, ${bgColor}ee, ${bgColor}99)` }}
+        style={{ background: "linear-gradient(135deg, #0f1318 0%, #1a1f2e 60%, #111827 100%)" }}
       >
         <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
           <Icon size={32} className="text-white/80" />

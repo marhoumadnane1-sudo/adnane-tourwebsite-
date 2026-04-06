@@ -1,28 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, useAnimationControls } from "framer-motion";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { POPULAR_ROUTES } from "@/lib/prices";
-import { formatPrice } from "@/lib/utils";
 import { useBookingStore } from "@/lib/store";
-
-const containerVariants = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
-};
 
 export function PopularRoutes() {
   const { currency } = useBookingStore();
   const displayRoutes = POPULAR_ROUTES.slice(0, 8);
+  // Duplicate for seamless loop
+  const loopRoutes = [...displayRoutes, ...displayRoutes];
+
+  const controls = useAnimationControls();
+  const [paused, setPaused] = useState(false);
+
+  function handleHoverStart() {
+    setPaused(true);
+    controls.stop();
+  }
+
+  function handleHoverEnd() {
+    setPaused(false);
+    // Resume from current position
+    controls.start({
+      x: [null, "-50%"],
+      transition: { duration: 28, ease: "linear", repeat: Infinity },
+    });
+  }
 
   return (
-    <section className="py-20 sm:py-28 bg-sand/40" id="routes">
+    <section className="py-20 sm:py-28 bg-sand/40 overflow-hidden" id="routes">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -47,26 +56,41 @@ export function PopularRoutes() {
             <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>
+      </div>
 
-        {/* Route Cards */}
+      {/* Ticker — full-width, no horizontal padding */}
+      <div
+        className="relative w-full"
+        onMouseEnter={handleHoverStart}
+        onMouseLeave={handleHoverEnd}
+      >
+        {/* Edge fade masks */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-r from-[#f0e6cc] to-transparent" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-l from-[#f0e6cc] to-transparent" />
+
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="flex gap-4 w-max"
+          animate={controls}
+          initial={{ x: "0%" }}
+          onViewportEnter={() => {
+            controls.start({
+              x: [null, "-50%"],
+              transition: { duration: 28, ease: "linear", repeat: Infinity },
+            });
+          }}
+          viewport={{ once: true }}
         >
-          {displayRoutes.map((route) => {
-            const price = currency === "EUR"
-              ? `€${(route.priceEconomy / 10.8).toFixed(0)}`
-              : `${route.priceEconomy.toLocaleString("fr-MA")} DH`;
+          {loopRoutes.map((route, idx) => {
+            const price =
+              currency === "EUR"
+                ? `€${(route.priceEconomy / 10.8).toFixed(0)}`
+                : `${route.priceEconomy.toLocaleString("fr-MA")} DH`;
 
             return (
               <motion.div
-                key={route.id}
-                variants={cardVariants}
-                whileHover={{ y: -4, boxShadow: "0 8px 40px rgba(26, 26, 46, 0.12)" }}
-                className="bg-white rounded-2xl p-5 shadow-card group cursor-pointer"
+                key={`${route.id}-${idx}`}
+                whileHover={{ y: -6, boxShadow: "0 12px 40px rgba(26,26,46,0.14)" }}
+                className="bg-white rounded-2xl p-5 shadow-card w-[220px] flex-shrink-0 cursor-pointer group"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-1.5 text-terracotta">
@@ -80,46 +104,48 @@ export function PopularRoutes() {
                 </div>
 
                 <div className="mb-4">
-                  <p className="font-bold text-charcoal text-base leading-tight">{route.from}</p>
+                  <p className="font-bold text-charcoal text-sm leading-tight">{route.from}</p>
                   <div className="flex items-center gap-2 my-1.5">
                     <div className="flex-1 h-px bg-sand-dark" />
                     <ArrowRight className="w-3 h-3 text-charcoal/30" />
                     <div className="flex-1 h-px bg-sand-dark" />
                   </div>
-                  <p className="font-bold text-charcoal text-base leading-tight">{route.to}</p>
+                  <p className="font-bold text-charcoal text-sm leading-tight">{route.to}</p>
                 </div>
 
                 <div className="text-xs text-charcoal/40 mb-4">
-                  {route.distanceKm} km · Economy Sedan
+                  {route.distanceKm} km
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-2xl font-bold text-terracotta">{price}</p>
-                    <p className="text-[11px] text-charcoal/40">per vehicle</p>
+                    <p className="text-xl font-bold text-terracotta">{price}</p>
+                    <p className="text-[10px] text-charcoal/40">per vehicle</p>
                   </div>
                   <Link
                     href={`/book?from=${route.from}&to=${route.to}`}
-                    className="bg-terracotta/10 hover:bg-terracotta text-terracotta hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all duration-200 group-hover:bg-terracotta group-hover:text-white"
                     onClick={(e) => e.stopPropagation()}
+                    className="bg-terracotta/10 hover:bg-terracotta text-terracotta hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 group-hover:bg-terracotta group-hover:text-white"
                   >
-                    Book Now
+                    Book
                   </Link>
                 </div>
               </motion.div>
             );
           })}
         </motion.div>
+      </div>
 
-        {/* Disclaimer */}
+      {/* Pause hint */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.6 }}
           className="text-center text-charcoal/40 text-xs mt-8"
         >
-          Economy Sedan prices shown. Comfort, Minivan & Sprinter options available. All prices per vehicle, all-inclusive.
+          Economy Sedan prices shown · Hover to pause · All prices per vehicle, all-inclusive
         </motion.p>
       </div>
     </section>

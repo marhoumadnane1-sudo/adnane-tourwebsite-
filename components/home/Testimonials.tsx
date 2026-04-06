@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
 
@@ -57,17 +57,56 @@ const testimonials = [
   },
 ];
 
+const INTERVAL = 5000;
+
 export function Testimonials() {
   const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const prev = () => setCurrent((c) => (c - 1 + testimonials.length) % testimonials.length);
-  const next = () => setCurrent((c) => (c + 1) % testimonials.length);
+  function advance(dir: number) {
+    setDirection(dir);
+    setCurrent((c) => (c + dir + testimonials.length) % testimonials.length);
+  }
+
+  // Auto-advance
+  useEffect(() => {
+    if (paused) return;
+    timerRef.current = setInterval(() => advance(1), INTERVAL);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [paused, current]);
 
   const t = testimonials[current];
 
+  const variants = {
+    enter: (dir: number) => ({
+      opacity: 0,
+      x: dir > 0 ? 60 : -60,
+      scale: 0.96,
+    }),
+    center: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+    },
+    exit: (dir: number) => ({
+      opacity: 0,
+      x: dir > 0 ? -60 : 60,
+      scale: 0.96,
+      transition: { duration: 0.3, ease: "easeIn" },
+    }),
+  };
+
   return (
-    <section className="py-20 sm:py-28 bg-charcoal relative overflow-hidden" id="reviews">
-      {/* Background pattern */}
+    <section
+      className="py-20 sm:py-28 bg-charcoal relative overflow-hidden"
+      id="reviews"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Background pattern + orbs */}
       <div className="absolute inset-0 zellige-bg opacity-50" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
@@ -85,25 +124,30 @@ export function Testimonials() {
             Customer Stories
             <span className="w-6 h-px bg-gold" />
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">Trusted by Travellers Worldwide</h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+            Trusted by Travellers Worldwide
+          </h2>
           <div className="flex items-center justify-center gap-1 mt-3">
-            {[1,2,3,4,5].map((s) => (
+            {[1, 2, 3, 4, 5].map((s) => (
               <Star key={s} className="w-5 h-5 fill-gold text-gold" />
             ))}
-            <span className="text-white/50 text-sm ml-2">4.9 average from 1,200+ reviews</span>
+            <span className="text-white/50 text-sm ml-2">
+              4.9 average from 1,200+ reviews
+            </span>
           </div>
         </motion.div>
 
-        {/* Main testimonial card */}
+        {/* Main card */}
         <div className="relative">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={current}
-              initial={{ opacity: 0, x: 40 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -40 }}
-              transition={{ duration: 0.35, ease: "easeInOut" }}
-              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-12"
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-12 overflow-hidden"
             >
               <Quote className="w-10 h-10 text-terracotta mb-6 opacity-60" />
 
@@ -113,22 +157,42 @@ export function Testimonials() {
 
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-terracotta rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  <motion.div
+                    key={current}
+                    initial={{ scale: 0.7, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.4, delay: 0.15 }}
+                    className="w-12 h-12 bg-terracotta rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                  >
                     {t.avatar}
-                  </div>
+                  </motion.div>
                   <div>
                     <p className="text-white font-semibold">{t.name}</p>
-                    <p className="text-white/40 text-sm">{t.country} · {t.date}</p>
+                    <p className="text-white/40 text-sm">
+                      {t.country} · {t.date}
+                    </p>
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="flex items-center gap-0.5 justify-end mb-1">
-                    {[1,2,3,4,5].map((s) => (
+                    {[1, 2, 3, 4, 5].map((s) => (
                       <Star key={s} className="w-4 h-4 fill-gold text-gold" />
                     ))}
                   </div>
                   <p className="text-white/40 text-xs">{t.route}</p>
                 </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mt-8 h-0.5 bg-white/10 rounded-full overflow-hidden">
+                <motion.div
+                  key={`progress-${current}`}
+                  className="h-full bg-terracotta rounded-full"
+                  initial={{ scaleX: 0 }}
+                  animate={paused ? {} : { scaleX: 1 }}
+                  transition={{ duration: INTERVAL / 1000, ease: "linear" }}
+                  style={{ transformOrigin: "left" }}
+                />
               </div>
             </motion.div>
           </AnimatePresence>
@@ -139,24 +203,30 @@ export function Testimonials() {
               {testimonials.map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setCurrent(i)}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${i === current ? "w-8 bg-terracotta" : "w-4 bg-white/20 hover:bg-white/40"}`}
+                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === current ? "w-8 bg-terracotta" : "w-4 bg-white/20 hover:bg-white/40"
+                  }`}
                 />
               ))}
             </div>
             <div className="flex gap-3">
-              <button
-                onClick={prev}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => advance(-1)}
                 className="w-10 h-10 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl flex items-center justify-center text-white transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button
-                onClick={next}
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => advance(1)}
                 className="w-10 h-10 bg-terracotta hover:bg-terracotta-dark rounded-xl flex items-center justify-center text-white transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>

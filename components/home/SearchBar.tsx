@@ -158,9 +158,9 @@ export function SearchBar() {
 
   return (
     <div className="w-full max-w-4xl mx-auto" id="search-bar">
-      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl overflow-hidden shadow-2xl">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl">
         {/* Tabs */}
-        <div className="flex border-b border-white/10">
+        <div className="flex border-b border-white/10 rounded-t-2xl overflow-hidden">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
