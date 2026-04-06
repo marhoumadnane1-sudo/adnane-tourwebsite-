@@ -223,7 +223,7 @@ export default function AboutContent() {
                 <div className="space-y-4">
                   <div className="relative h-48 rounded-2xl overflow-hidden">
                     <Image
-                      src="https://images.unsplash.com/photo-1553440569-bcc63803a83d?w=600&q=80"
+                      src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&q=80"
                       alt="Premium sedan transfer Morocco"
                       fill
                       className="object-cover"
@@ -243,7 +243,7 @@ export default function AboutContent() {
                 <div className="space-y-4 pt-8">
                   <div className="relative h-32 rounded-2xl overflow-hidden">
                     <Image
-                      src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80"
+                      src="https://images.unsplash.com/photo-1548013146-72479768bada?w=600&q=80"
                       alt="Marrakech Morocco"
                       fill
                       className="object-cover"
