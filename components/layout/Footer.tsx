@@ -3,10 +3,12 @@ import { Phone, Mail, MapPin, Instagram, Facebook, Twitter } from "lucide-react"
 import { CONTACT } from "@/lib/routes";
 
 const services = [
+  { label: "About Us", href: "/about" },
   { label: "Airport Transfers", href: "/services#airport" },
   { label: "City to City", href: "/services#city-to-city" },
   { label: "Private Day Hire", href: "/services#day-hire" },
-  { label: "Group Transfers", href: "/services#group" },
+  { label: "Book a Transfer", href: "/book" },
+  { label: "View All Prices", href: "/prices" },
 ];
 
 const quickLinks = [

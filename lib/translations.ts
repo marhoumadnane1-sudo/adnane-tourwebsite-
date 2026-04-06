@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     nav: {
-      home: 'Home', services: 'Services', prices: 'Prices', contact: 'Contact',
+      home: 'Home', about: 'About', services: 'Services', prices: 'Prices', contact: 'Contact',
       bookNow: 'Book Now',
     },
     hero: {
@@ -53,7 +53,7 @@ export const translations = {
   },
   fr: {
     nav: {
-      home: 'Accueil', services: 'Services', prices: 'Tarifs', contact: 'Contact',
+      home: 'Accueil', about: 'À propos', services: 'Services', prices: 'Tarifs', contact: 'Contact',
       bookNow: 'Réserver',
     },
     hero: {
@@ -105,7 +105,7 @@ export const translations = {
   },
   ar: {
     nav: {
-      home: 'الرئيسية', services: 'الخدمات', prices: 'الأسعار', contact: 'اتصل بنا',
+      home: 'الرئيسية', about: 'من نحن', services: 'الخدمات', prices: 'الأسعار', contact: 'اتصل بنا',
       bookNow: 'احجز الآن',
     },
     hero: {
