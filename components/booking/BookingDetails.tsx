@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,7 +8,7 @@ import { ArrowLeft, CreditCard, Banknote, MapPin, Calendar, Users, Car } from "l
 import { useBookingStore } from "@/lib/store";
 import { VEHICLES, EUR_RATE } from "@/lib/prices";
 import { formatDate } from "@/lib/utils";
-import { t } from "@/lib/translations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import AddressInput from "@/components/ui/AddressInput";
 
@@ -25,7 +26,8 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 function OrderSummary() {
-  const { formData, calculatedPrice, currency, language } = useBookingStore();
+  const { formData, calculatedPrice, currency } = useBookingStore();
+  const { t } = useTranslation();
   const vehicle = VEHICLES.find((v) => v.id === formData.vehicleType);
 
   const priceDisplay = calculatedPrice
@@ -42,7 +44,7 @@ function OrderSummary() {
 
   return (
     <div className="bg-sand/40 rounded-2xl p-6 space-y-4" style={{ position: "sticky", top: "100px" }}>
-      <h3 className="font-bold text-charcoal text-base">{t(language, "booking", "orderSummary")}</h3>
+      <h3 className="font-bold text-charcoal text-base">{t("booking", "orderSummary")}</h3>
 
       <div className="space-y-3 text-sm">
         <div className="flex items-start gap-2">
@@ -70,7 +72,7 @@ function OrderSummary() {
         <div className="flex items-start gap-2">
           <Users className="w-4 h-4 text-terracotta mt-0.5 flex-shrink-0" />
           <div>
-            <p className="text-charcoal/40 text-xs uppercase tracking-wider">Passengers</p>
+            <p className="text-charcoal/40 text-xs uppercase tracking-wider">{t("booking", "passengers")}</p>
             <p className="font-semibold text-charcoal">{formData.passengers} pax · {formData.luggage} bags</p>
           </div>
         </div>
@@ -88,10 +90,10 @@ function OrderSummary() {
 
       <div className="border-t border-sand-dark pt-4">
         <div className="flex items-center justify-between mb-1">
-          <span className="text-charcoal/60 text-sm">{t(language, "booking", "total")}</span>
+          <span className="text-charcoal/60 text-sm">{t("booking", "total")}</span>
           <span className="text-2xl font-bold text-terracotta">{priceDisplay}</span>
         </div>
-        <p className="text-charcoal/40 text-xs text-right">{t(language, "booking", "allInclusive")}</p>
+        <p className="text-charcoal/40 text-xs text-right">{t("booking", "allInclusive")}</p>
       </div>
 
       <div className="bg-terracotta/8 rounded-xl p-3 text-xs text-terracotta font-medium text-center">
@@ -107,7 +109,8 @@ interface BookingDetailsProps {
 }
 
 export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
-  const { formData, updateFormData, language } = useBookingStore();
+  const { formData, updateFormData } = useBookingStore();
+  const { t } = useTranslation();
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -136,11 +139,11 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
       <form onSubmit={handleSubmit(onFormSubmit)} className="lg:col-span-3 space-y-6">
         <div>
-          <h3 className="font-bold text-charcoal text-base mb-4">Your Details</h3>
+          <h3 className="font-bold text-charcoal text-base mb-4">{t("booking", "step3")}</h3>
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-                {t(language, "booking", "fullName")} *
+                {t("booking", "fullName")} *
               </label>
               <input {...register("fullName")} placeholder="John Smith" className="input-field" />
               {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
@@ -149,14 +152,14 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-                  {t(language, "booking", "email")} *
+                  {t("booking", "email")} *
                 </label>
                 <input {...register("email")} type="email" placeholder="john@email.com" className="input-field" />
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
               </div>
               <div>
                 <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-                  {t(language, "booking", "phone")} * <span className="text-charcoal/30 normal-case font-normal">(used for confirmation)</span>
+                  {t("booking", "phone")} * <span className="text-charcoal/30 normal-case font-normal">(used for confirmation)</span>
                 </label>
                 <input {...register("phone")} type="tel" placeholder="+212 6XX XXX XXX" className="input-field" />
                 {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone.message}</p>}
@@ -166,14 +169,14 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
             {formData.serviceType === "airport" && (
               <div>
                 <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-                  {t(language, "booking", "flightNumber")}
+                  {t("booking", "flightNumber")}
                 </label>
                 <input {...register("flightNumber")} placeholder="e.g. AT 123, FR 456" className="input-field" />
               </div>
             )}
 
             <AddressInput
-              label={`${t(language, "booking", "hotel")} *`}
+              label={`${t("booking", "hotel")} *`}
               placeholder="Hotel name, riad, or full address..."
               value={hotelAddress}
               onChange={(val) => setValue("hotelAddress", val, { shouldValidate: true })}
@@ -182,7 +185,7 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
 
             <div>
               <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-                {t(language, "booking", "requests")}
+                {t("booking", "requests")}
               </label>
               <textarea {...register("specialRequests")} rows={3} placeholder="Child seat, extra stops, accessibility needs..." className="input-field resize-none" />
             </div>
@@ -191,11 +194,11 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
 
         {/* Payment */}
         <div>
-          <h3 className="font-bold text-charcoal text-base mb-4">{t(language, "booking", "payment")}</h3>
+          <h3 className="font-bold text-charcoal text-base mb-4">{t("booking", "payment")}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              { value: "on-arrival", icon: Banknote, label: t(language, "booking", "payOnArrival"), desc: "Cash or card when driver arrives" },
-              { value: "online", icon: CreditCard, label: t(language, "booking", "payOnline"), desc: "Secure payment via Stripe" },
+              { value: "on-arrival", icon: Banknote, label: t("booking", "payOnArrival"), desc: "Cash or card when driver arrives" },
+              { value: "online", icon: CreditCard, label: t("booking", "payOnline"), desc: "Secure payment via Stripe" },
             ].map((opt) => {
               const Icon = opt.icon;
               const isSelected = paymentMethod === opt.value;
@@ -232,7 +235,7 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
             />
             <span className="text-sm text-charcoal/60">
               I understand and agree to the{" "}
-              <span className="text-terracotta underline cursor-pointer">cancellation policy</span>
+              <Link href="/policy" className="text-terracotta underline">cancellation policy</Link>
               : free cancellation up to 24 hours before pickup. 50% fee within 24 hours.
             </span>
           </label>
@@ -243,15 +246,21 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
 
         <div className="flex gap-3 pt-2">
           <button type="button" onClick={onBack} className="btn-secondary flex items-center gap-2 px-5 py-3.5">
-            <ArrowLeft className="w-4 h-4" /> {t(language, "booking", "back")}
+            <ArrowLeft className="w-4 h-4" /> {t("booking", "back")}
           </button>
           <button type="submit" className="btn-primary flex-1 py-3.5 text-base">
-            {t(language, "booking", "confirm")}
+            {t("booking", "confirm")}
           </button>
         </div>
 
         <p className="text-charcoal/40 text-xs text-center">
           Your personal data is used only to process your booking and is never shared with third parties.
+        </p>
+        <p className="text-xs text-charcoal/40 text-center">
+          By booking, you agree to our{" "}
+          <Link href="/policy" className="text-terracotta hover:underline">
+            policies &amp; terms
+          </Link>
         </p>
       </form>
 

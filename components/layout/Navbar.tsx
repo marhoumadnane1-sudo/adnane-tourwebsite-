@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Globe, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBookingStore } from "@/lib/store";
-import { t, type Lang } from "@/lib/translations";
+import { type Lang } from "@/lib/translations";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const languages: { code: Lang; label: string; full: string }[] = [
   { code: "en", label: "EN", full: "English" },
@@ -20,14 +21,15 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const pathname = usePathname();
-  const { currency, setCurrency, language, setLanguage } = useBookingStore();
+  const { currency, setCurrency, setLanguage } = useBookingStore();
+  const { t, language, isRTL } = useTranslation();
 
   const navLinks = [
-    { href: "/", label: t(language, "nav", "home") },
-    { href: "/about", label: t(language, "nav", "about") },
-    { href: "/services", label: t(language, "nav", "services") },
-    { href: "/prices", label: t(language, "nav", "prices") },
-    { href: "/contact", label: t(language, "nav", "contact") },
+    { href: "/", label: t("nav", "home") },
+    { href: "/about", label: t("nav", "about") },
+    { href: "/services", label: t("nav", "services") },
+    { href: "/prices", label: t("nav", "prices") },
+    { href: "/contact", label: t("nav", "contact") },
   ];
 
   useEffect(() => {
@@ -37,7 +39,6 @@ export function Navbar() {
   }, []);
 
   const isHome = pathname === "/";
-  const isAr = language === "ar";
 
   return (
     <motion.header
@@ -135,7 +136,7 @@ export function Navbar() {
                     transition={{ duration: 0.15 }}
                     className={cn(
                       "absolute top-full mt-2 bg-white rounded-xl shadow-card-hover border border-sand-dark/30 py-1 w-36 z-50",
-                      isAr ? "left-0" : "right-0"
+                      isRTL ? "left-0" : "right-0"
                     )}
                   >
                     {languages.map((lang) => (
@@ -159,7 +160,7 @@ export function Navbar() {
             </div>
 
             <Link href="/book" className="btn-primary text-sm px-5 py-2.5">
-              {t(language, "nav", "bookNow")}
+              {t("nav", "bookNow")}
             </Link>
           </div>
 
@@ -218,7 +219,7 @@ export function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="flex-1 btn-primary text-sm py-2 text-center"
                 >
-                  {t(language, "nav", "bookNow")}
+                  {t("nav", "bookNow")}
                 </Link>
               </div>
 

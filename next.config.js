@@ -26,6 +26,22 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'www.shutterstock.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'pre-webunwto.s3.eu-west-1.amazonaws.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'mnarcastle.ma',
+      },
+      {
+        protocol: 'https',
+        hostname: 'primemoroccotours.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.topmorocco.com',
+      },
     ],
   },
 };

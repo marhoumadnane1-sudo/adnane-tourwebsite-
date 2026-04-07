@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
+import { LanguageDirectionSync } from "@/components/layout/LanguageDirectionSync";
 
 export const metadata: Metadata = {
   title: {
@@ -34,8 +35,8 @@ export const metadata: Metadata = {
   themeColor: "#B5451B",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = cookies();
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
   const lang = (cookieStore.get("mt-lang")?.value ?? "en") as "en" | "fr" | "ar";
   const dir = lang === "ar" ? "rtl" : "ltr";
 
@@ -81,6 +82,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         style={{ fontFamily: lang === "ar" ? "'Noto Sans Arabic', sans-serif" : "'Plus Jakarta Sans', Inter, sans-serif" }}
         suppressHydrationWarning
       >
+        <LanguageDirectionSync />
         <Navbar />
         <main>{children}</main>
         <Footer />

@@ -6,8 +6,7 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { SearchBar } from "./SearchBar";
-import { useBookingStore } from "@/lib/store";
-import { t } from "@/lib/translations";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const BG_IMAGES = [
   "https://images.unsplash.com/photo-1548013146-72479768bada?w=1920&q=90",
@@ -55,7 +54,7 @@ export function Hero() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  const { language } = useBookingStore();
+  const { t, tArr, isRTL } = useTranslation();
   const [imgIndex, setImgIndex] = useState(0);
 
   useEffect(() => {
@@ -65,10 +64,7 @@ export function Hero() {
     return () => clearInterval(id);
   }, []);
 
-  const highlights: string[] =
-    (t(language, "hero", "highlights") as any) ??
-    ["Fixed price — no surprises", "Free 90-min wait at airports", "Pay on arrival or online", "Free cancellation"];
-
+  const highlights = tArr("hero", "highlights");
   const kb = KEN_BURNS[imgIndex];
 
   return (
@@ -154,7 +150,7 @@ export function Hero() {
         style={{ y: textY, opacity }}
         className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 pb-8"
       >
-        <div className="max-w-5xl mx-auto text-center">
+        <div className={`max-w-5xl mx-auto text-center${isRTL ? " rtl" : ""}`}>
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -167,18 +163,18 @@ export function Hero() {
               animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
-            <span className="text-white/90 text-sm font-medium">{t(language, "hero", "badge")}</span>
+            <span className="text-white/90 text-sm font-medium">{t("hero", "badge")}</span>
           </motion.div>
 
           {/* Headline — word-split */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.08] tracking-tight mb-6">
             <WordSplit
-              text={t(language, "hero", "title1") as string}
+              text={t("hero", "title1")}
               delay={0.3}
             />
             {" "}
             <WordSplit
-              text={t(language, "hero", "title2") as string}
+              text={t("hero", "title2")}
               delay={0.45}
               className="text-transparent bg-clip-text bg-gradient-to-r from-gold to-yellow-300"
             />
@@ -189,9 +185,9 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.75 }}
-            className="text-lg sm:text-xl text-white/75 max-w-2xl mx-auto mb-8 leading-relaxed"
+            className={`text-lg sm:text-xl text-white/75 max-w-2xl mx-auto mb-8 leading-relaxed${isRTL ? " text-right" : ""}`}
           >
-            {t(language, "hero", "subtitle")}
+            {t("hero", "subtitle")}
           </motion.p>
 
           {/* Highlights */}
@@ -201,7 +197,7 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.88 }}
             className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mb-8"
           >
-            {(Array.isArray(highlights) ? highlights : []).map((item: string, i: number) => (
+            {highlights.map((item: string, i: number) => (
               <motion.div
                 key={item}
                 initial={{ opacity: 0, x: -10 }}
@@ -224,13 +220,13 @@ export function Hero() {
           >
             <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
               <Link href="/book" className="btn-primary text-base px-8 py-4 shadow-glow">
-                {t(language, "hero", "bookBtn")}
+                {t("hero", "bookBtn")}
                 <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
               <Link href="/prices" className="btn-ghost text-base px-8 py-4">
-                {t(language, "hero", "pricesBtn")}
+                {t("hero", "pricesBtn")}
               </Link>
             </motion.div>
           </motion.div>

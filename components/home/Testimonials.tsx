@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const testimonials = [
   {
@@ -64,6 +65,7 @@ export function Testimonials() {
   const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
   const [paused, setPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const { t } = useTranslation();
 
   function advance(dir: number) {
     setDirection(dir);
@@ -77,7 +79,7 @@ export function Testimonials() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [paused, current]);
 
-  const t = testimonials[current];
+  const testimonial = testimonials[current];
 
   const variants = {
     enter: (dir: number) => ({
@@ -125,8 +127,11 @@ export function Testimonials() {
             <span className="w-6 h-px bg-gold" />
           </span>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-            Trusted by Travellers Worldwide
+            {t("testimonials", "title")}
           </h2>
+          <p className="text-white/60 text-base">
+            {t("testimonials", "subtitle")}
+          </p>
           <div className="flex items-center justify-center gap-1 mt-3">
             {[1, 2, 3, 4, 5].map((s) => (
               <Star key={s} className="w-5 h-5 fill-gold text-gold" />
@@ -152,7 +157,7 @@ export function Testimonials() {
               <Quote className="w-10 h-10 text-terracotta mb-6 opacity-60" />
 
               <p className="text-white/80 text-lg md:text-xl leading-relaxed mb-8 font-light italic">
-                &ldquo;{t.text}&rdquo;
+                &ldquo;{testimonial.text}&rdquo;
               </p>
 
               <div className="flex items-center justify-between flex-wrap gap-4">
@@ -164,12 +169,12 @@ export function Testimonials() {
                     transition={{ duration: 0.4, delay: 0.15 }}
                     className="w-12 h-12 bg-terracotta rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
                   >
-                    {t.avatar}
+                    {testimonial.avatar}
                   </motion.div>
                   <div>
-                    <p className="text-white font-semibold">{t.name}</p>
+                    <p className="text-white font-semibold">{testimonial.name}</p>
                     <p className="text-white/40 text-sm">
-                      {t.country} · {t.date}
+                      {testimonial.country} · {testimonial.date}
                     </p>
                   </div>
                 </div>
@@ -179,7 +184,7 @@ export function Testimonials() {
                       <Star key={s} className="w-4 h-4 fill-gold text-gold" />
                     ))}
                   </div>
-                  <p className="text-white/40 text-xs">{t.route}</p>
+                  <p className="text-white/40 text-xs">{testimonial.route}</p>
                 </div>
               </div>
 

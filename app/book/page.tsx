@@ -10,13 +10,8 @@ import { VehicleSelector } from "@/components/booking/VehicleSelector";
 import { BookingDetails } from "@/components/booking/BookingDetails";
 import { SuccessScreen } from "@/components/booking/SuccessScreen";
 import { useBookingStore } from "@/lib/store";
+import { useTranslation } from "@/hooks/useTranslation";
 import { generateBookingRef } from "@/lib/utils";
-
-const STEPS = [
-  { label: "Route", description: "Service & dates" },
-  { label: "Vehicle", description: "Choose your car" },
-  { label: "Details", description: "Your information" },
-];
 
 const pageVariants = {
   hidden: { opacity: 0, x: 30 },
@@ -28,6 +23,13 @@ function BookingContent() {
   const { step, setStep, nextStep, prevStep, updateFormData } = useBookingStore();
   const [bookingRef, setBookingRef] = useState<string | null>(null);
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
+
+  const STEPS = [
+    { label: t("booking", "step1"), description: "Service & dates" },
+    { label: t("booking", "step2"), description: "Choose your car" },
+    { label: t("booking", "step3"), description: "Your information" },
+  ];
 
   useEffect(() => {
     const from = searchParams.get("from");
@@ -82,10 +84,10 @@ function BookingContent() {
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-charcoal/40 text-xs">
-              {["100% Fixed Price", "Free Cancellation 24h", "No Hidden Fees", "Secure Booking"].map((t) => (
-                <div key={t} className="flex items-center gap-1.5">
+              {["100% Fixed Price", "Free Cancellation 24h", "No Hidden Fees", "Secure Booking"].map((item) => (
+                <div key={item} className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 bg-terracotta rounded-full" />
-                  {t}
+                  {item}
                 </div>
               ))}
             </div>

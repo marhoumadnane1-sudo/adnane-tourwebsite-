@@ -85,12 +85,11 @@ function LiquidGlassCard({ member, index }: { member: (typeof team)[0]; index: n
     >
       <motion.div
         ref={cardRef}
-        style={{ rotateX, rotateY, scale, transformPerspective: 900 }}
+        style={{ rotateX, rotateY, scale, transformPerspective: 900, isolation: "isolate" } as any}
         onMouseMove={handleMouseMove}
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
         className="relative rounded-3xl cursor-default select-none"
-        style={{ isolation: "isolate" }}
       >
         {/* Liquid glass base — solid fallback + blur overlay */}
         <div

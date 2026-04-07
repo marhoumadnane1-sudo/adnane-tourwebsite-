@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Plane, Clock, Shield, CheckCircle, ArrowRight } from "lucide-react";
 import { AIRPORTS } from "@/lib/routes";
-import { DAY_HIRE_PRICES, VEHICLES } from "@/lib/prices";
+import { DAY_HIRE_RATES, VEHICLES } from "@/lib/prices";
 import { DAY_TRIP_ITINERARIES } from "@/lib/routes";
 import { CityRouteTable } from "@/components/services/CityRouteTable";
 
@@ -131,19 +131,19 @@ export default function ServicesPage() {
             description="Hire a private driver for a half day, full day, or multiple days. Explore Morocco at your own pace, with a knowledgeable local guide behind the wheel."
           />
 
-          {/* Duration options */}
+          {/* Duration options — prices based on Vito (main vehicle) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
             {[
-              { title: "Half Day", hours: "5 hours", desc: "Perfect for a morning excursion or afternoon city tour", from: 500 },
-              { title: "Full Day", hours: "10 hours", desc: "Explore a full region or do a day trip to a nearby destination", from: 800 },
-              { title: "2 Days", hours: "2 × 10h", desc: "5% multi-day discount — ideal for Sahara or Imperial Cities", from: 1520 },
-              { title: "3+ Days", hours: "3+ × 10h", desc: "10% discount — best for complete Morocco road trips", from: 2160 },
+              { title: "Half Day", hours: "5 hours", desc: "Perfect for a morning excursion or afternoon city tour",      from: DAY_HIRE_RATES.vito.halfDay },
+              { title: "Full Day", hours: "10 hours", desc: "Explore a full region or do a day trip to a nearby destination", from: DAY_HIRE_RATES.vito.fullDay },
+              { title: "2 Days",   hours: "2 × 10h",  desc: "5% multi-day discount — ideal for Sahara or Imperial Cities",   from: Math.round(DAY_HIRE_RATES.vito.fullDay * 2 * 0.95 / 50) * 50 },
+              { title: "3+ Days",  hours: "3+ × 10h", desc: "10% discount — best for complete Morocco road trips",            from: Math.round(DAY_HIRE_RATES.vito.fullDay * 3 * 0.90 / 50) * 50 },
             ].map((opt) => (
               <div key={opt.title} className="bg-white rounded-2xl p-5 shadow-card">
                 <h3 className="font-bold text-charcoal text-base mb-1">{opt.title}</h3>
                 <p className="text-terracotta font-semibold text-sm mb-2">{opt.hours}</p>
                 <p className="text-charcoal/50 text-xs mb-4">{opt.desc}</p>
-                <p className="text-charcoal/40 text-xs">Economy Sedan from</p>
+                <p className="text-charcoal/40 text-xs">Mercedes Vito from</p>
                 <p className="text-xl font-bold text-terracotta">{opt.from.toLocaleString("fr-MA")} DH</p>
               </div>
             ))}

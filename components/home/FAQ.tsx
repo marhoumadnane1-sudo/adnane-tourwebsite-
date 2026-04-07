@@ -4,36 +4,19 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const faqs = [
-  {
-    q: "Do prices include tolls, fuel and taxes?",
-    a: "Yes — absolutely everything is included. The price you see is the price you pay. There are no hidden fees, no fuel surcharges, no toll charges, and no taxes added at the end. Our fixed price covers the complete journey door to door.",
-  },
-  {
-    q: "What if my flight is delayed?",
-    a: "Don't worry — we track all incoming flights in real time. Your driver will monitor your flight and adjust their arrival time accordingly. For airport pick-ups, we include 90 minutes of free waiting time from your scheduled landing. If your flight is seriously delayed, we'll contact you proactively.",
-  },
-  {
-    q: "How do I pay?",
-    a: "You can choose to pay on arrival (cash in MAD or EUR, or card) or pay online at the time of booking via our secure payment link. We accept Visa, Mastercard, and bank transfers. No payment is required to confirm your booking if you choose 'Pay on Arrival'.",
-  },
-  {
-    q: "Can I cancel or modify a booking?",
-    a: "Yes. Cancellations made more than 24 hours before your transfer are 100% free. Cancellations within 24 hours are charged at 50%. You can modify your booking (date, time, number of passengers) at any time for free, subject to availability. Contact us via WhatsApp or email for any changes.",
-  },
-  {
-    q: "Is the price per person or per vehicle?",
-    a: "The price is always per vehicle — not per person. Whether you're travelling alone or with 3 passengers in a sedan (or up to 14 in a Sprinter), you pay the same fixed price for the vehicle. This makes it much better value for groups and families compared to taxis or shared transfers.",
-  },
-  {
-    q: "What vehicles are available and what's the capacity?",
-    a: "We offer four vehicle types: Economy Sedan (Toyota Corolla / Dacia Logan, up to 3 pax + 3 bags), Comfort Sedan (Mercedes E-Class, up to 3 pax + 3 bags), Minivan (Toyota HiAce, up to 6 pax + 6 bags), and Sprinter Van (Mercedes Sprinter, up to 14 pax). All vehicles are air-conditioned and well-maintained.",
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function FAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const { t } = useTranslation();
+
+  const faqs = [
+    { q: t("faq", "q1"), a: t("faq", "a1") },
+    { q: t("faq", "q2"), a: t("faq", "a2") },
+    { q: t("faq", "q3"), a: t("faq", "a3") },
+    { q: t("faq", "q4"), a: t("faq", "a4") },
+    { q: t("faq", "q5"), a: t("faq", "a5") },
+  ];
 
   return (
     <section className="py-20 sm:py-28 bg-sand/30" id="faq">
@@ -50,8 +33,8 @@ export function FAQ() {
             FAQ
             <span className="w-6 h-px bg-terracotta" />
           </span>
-          <h2 className="section-title mb-3">Common Questions</h2>
-          <p className="section-subtitle text-base">Everything you need to know before booking.</p>
+          <h2 className="section-title mb-3">{t("faq", "title")}</h2>
+          <p className="section-subtitle text-base">{t("faq", "subtitle")}</p>
         </motion.div>
 
         <div className="space-y-3">

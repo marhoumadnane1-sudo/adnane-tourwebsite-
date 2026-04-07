@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useBookingStore } from "@/lib/store";
 import { VEHICLES, EUR_RATE } from "@/lib/prices";
 import { formatDate } from "@/lib/utils";
-import { t } from "@/lib/translations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { CONTACT } from "@/lib/routes";
 
 interface SuccessScreenProps {
@@ -15,7 +15,8 @@ interface SuccessScreenProps {
 }
 
 export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
-  const { formData, calculatedPrice, currency, language, resetBooking } = useBookingStore();
+  const { formData, calculatedPrice, currency, resetBooking } = useBookingStore();
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const vehicle = VEHICLES.find((v) => v.id === formData.vehicleType);
 
@@ -38,9 +39,9 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
   }
 
   const serviceLabel =
-    formData.serviceType === "airport" ? "Airport Transfer"
-    : formData.serviceType === "city-to-city" ? "City to City"
-    : "Private Day Hire";
+    formData.serviceType === "airport" ? t("booking", "airportTransfer")
+    : formData.serviceType === "city-to-city" ? t("booking", "cityToCity")
+    : t("booking", "dayHire");
 
   const whatsappText = [
     `🚗 NIGOR 2Transport — New Booking`,
@@ -92,7 +93,7 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
           transition={{ delay: 0.35 }}
           className="text-2xl font-bold text-charcoal mb-2"
         >
-          {t(language, "booking", "successTitle")}
+          {t("booking", "successTitle")}
         </motion.h2>
         <motion.p
           initial={{ opacity: 0 }}
@@ -100,7 +101,7 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
           transition={{ delay: 0.45 }}
           className="text-charcoal/60"
         >
-          {t(language, "booking", "successMsg")}
+          {t("booking", "successMsg")}
           {" "}<strong>{formData.email}</strong>
         </motion.p>
       </div>
@@ -112,7 +113,7 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
         transition={{ delay: 0.5 }}
         className="bg-charcoal rounded-2xl p-6 mb-5 text-center"
       >
-        <p className="text-white/50 text-sm mb-2">{t(language, "booking", "bookingRef")}</p>
+        <p className="text-white/50 text-sm mb-2">{t("booking", "bookingRef")}</p>
         <div className="flex items-center justify-center gap-3">
           <span className="text-3xl font-black text-gold tracking-wider">{bookingRef}</span>
           <button
@@ -155,9 +156,9 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
           <div className="flex items-start gap-2">
             <div className="w-4 mt-0.5 flex-shrink-0 text-terracotta font-bold text-sm">DH</div>
             <div>
-              <p className="text-charcoal/40 text-xs">Total</p>
+              <p className="text-charcoal/40 text-xs">{t("booking", "total")}</p>
               <p className="font-bold text-terracotta text-base">{priceDisplay}</p>
-              <p className="text-charcoal/30 text-xs">{formData.paymentMethod === "on-arrival" ? "Pay on arrival" : "Pay online"}</p>
+              <p className="text-charcoal/30 text-xs">{formData.paymentMethod === "on-arrival" ? t("booking", "payOnArrival") : t("booking", "payOnline")}</p>
             </div>
           </div>
         </div>
@@ -197,14 +198,14 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
           className="flex-1 flex items-center justify-center gap-2 py-4 bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold rounded-xl transition-colors text-base"
         >
           <MessageCircle className="w-5 h-5" />
-          {t(language, "booking", "whatsappConfirm")}
+          {t("booking", "whatsappConfirm")}
         </a>
         <Link
           href="/"
           onClick={resetBooking}
           className="flex-1 btn-secondary py-4 text-center"
         >
-          {t(language, "booking", "newBooking")}
+          {t("booking", "newBooking")}
         </Link>
       </motion.div>
     </motion.div>

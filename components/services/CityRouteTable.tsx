@@ -40,7 +40,7 @@ export function CityRouteTable() {
           <span>Route</span>
           <span className="text-center min-w-[55px]">km</span>
           <span className="text-center min-w-[55px]">Time</span>
-          <span className="text-center min-w-[90px]">From (Economy)</span>
+          <span className="text-center min-w-[90px]">Vito (main)</span>
           <span className="w-16"></span>
         </div>
 
@@ -51,14 +51,14 @@ export function CityRouteTable() {
         ) : (
           filtered.map((route, i) => (
             <div
-              key={route.id}
+              key={`${route.from}-${route.to}`}
               className={`grid grid-cols-[1fr,auto,auto,auto,auto] gap-4 items-center px-6 py-4 ${i < filtered.length - 1 ? "border-b border-sand/30" : ""}`}
             >
               <span className="font-semibold text-charcoal text-sm">{route.from} → {route.to}</span>
-              <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.distanceKm}</span>
-              <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.durationText}</span>
+              <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.distance}</span>
+              <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.duration}</span>
               <span className="text-center min-w-[90px]">
-                <span className="font-bold text-terracotta text-sm">{formatPrice(route.priceEconomy)}</span>
+                <span className="font-bold text-terracotta text-sm">{formatPrice(route.prices.vito)}</span>
               </span>
               <div className="w-16">
                 <Link
@@ -73,6 +73,11 @@ export function CityRouteTable() {
           ))
         )}
       </div>
+
+      <p className="text-charcoal/40 text-xs mt-3 text-center">
+        Mercedes Vito prices shown (main vehicle) · See full price table at{" "}
+        <Link href="/prices" className="text-terracotta hover:underline">View All Prices</Link>
+      </p>
     </div>
   );
 }

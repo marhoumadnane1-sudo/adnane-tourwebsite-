@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Users, Luggage } from "lucide-react";
 import { VEHICLES } from "@/lib/prices";
 import VehicleImage from "@/components/ui/VehicleImage";
+import { useTranslation } from "@/hooks/useTranslation";
 
 const CATEGORIES = ["Sedan", "Minivan", "Sprinter Van"] as const;
 
@@ -24,6 +25,8 @@ const cardVariants = {
 };
 
 export function Fleet() {
+  const { t } = useTranslation();
+
   return (
     <section className="py-20 sm:py-28 bg-cream" id="fleet">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -39,10 +42,9 @@ export function Fleet() {
             Our Fleet
             <span className="w-6 h-px bg-terracotta" />
           </span>
-          <h2 className="section-title mb-4">Choose Your Vehicle</h2>
+          <h2 className="section-title mb-4">{t("fleet", "title")}</h2>
           <p className="section-subtitle">
-            From economy sedans to large Sprinter vans — every vehicle is air-conditioned, well-maintained, and driven
-            by a licensed professional.
+            {t("fleet", "subtitle")}
           </p>
         </motion.div>
 
@@ -112,11 +114,11 @@ export function Fleet() {
                         <div className="flex items-center gap-4 mb-4 pb-4 border-b border-sand">
                           <div className="flex items-center gap-1.5 text-xs text-charcoal/60">
                             <Users className="w-3.5 h-3.5 text-terracotta" />
-                            <span>Up to {vehicle.capacity} pax</span>
+                            <span>Up to {vehicle.capacity} {t("fleet", "passengers")}</span>
                           </div>
                           <div className="flex items-center gap-1.5 text-xs text-charcoal/60">
                             <Luggage className="w-3.5 h-3.5 text-terracotta" />
-                            <span>{vehicle.luggage} bags</span>
+                            <span>{vehicle.luggage} {t("fleet", "bags")}</span>
                           </div>
                         </div>
 
@@ -135,7 +137,7 @@ export function Fleet() {
                           href="/book"
                           className="block text-center text-sm font-semibold text-terracotta border border-terracotta/30 hover:bg-terracotta hover:text-white px-4 py-2.5 rounded-xl transition-all duration-200"
                         >
-                          Book This Vehicle
+                          {t("fleet", "book")}
                         </Link>
                       </div>
                     </motion.div>

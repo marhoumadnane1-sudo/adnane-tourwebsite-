@@ -1,14 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { Phone, Mail, MapPin, Instagram, Facebook, Twitter } from "lucide-react";
 import { CONTACT } from "@/lib/routes";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const services = [
-  { label: "About Us", href: "/about" },
-  { label: "Airport Transfers", href: "/services#airport" },
-  { label: "City to City", href: "/services#city-to-city" },
-  { label: "Private Day Hire", href: "/services#day-hire" },
-  { label: "Book a Transfer", href: "/book" },
-  { label: "View All Prices", href: "/prices" },
+const serviceLinks = [
+  { labelKey: "About Us", href: "/about" },
+  { labelKey: "Airport Transfers", href: "/services#airport" },
+  { labelKey: "City to City", href: "/services#city-to-city" },
+  { labelKey: "Private Day Hire", href: "/services#day-hire" },
+  { labelKey: "Book a Transfer", href: "/book" },
+  { labelKey: "View All Prices", href: "/prices" },
 ];
 
 const quickLinks = [
@@ -24,13 +27,15 @@ const airports = [
 ];
 
 export function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-charcoal text-white">
       {/* Price disclaimer banner */}
       <div className="bg-terracotta/90 py-3">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-white/90 text-sm font-medium">
-            All prices are <strong>per vehicle</strong> — not per person. Fixed price includes tolls, fuel and taxes.
+            {t("footer", "disclaimer")}
           </p>
         </div>
       </div>
@@ -51,7 +56,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-6">
-              Morocco's trusted private transfer service from Casablanca. Professional drivers, fixed prices, 24/7 availability.
+              Morocco&apos;s trusted private transfer service from Casablanca. Professional drivers, fixed prices, 24/7 availability.
             </p>
             <div className="space-y-3">
               <a
@@ -111,12 +116,12 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Services</h3>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">{t("footer", "services")}</h3>
             <ul className="space-y-2.5">
-              {services.map((s) => (
+              {serviceLinks.map((s) => (
                 <li key={s.href}>
                   <Link href={s.href} className="text-white/50 hover:text-white text-sm transition-colors">
-                    {s.label}
+                    {s.labelKey}
                   </Link>
                 </li>
               ))}
@@ -139,7 +144,7 @@ export function Footer() {
 
           {/* Airports */}
           <div>
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">Airports Served</h3>
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">{t("footer", "airports")}</h3>
             <ul className="space-y-2.5">
               {airports.map((a) => (
                 <li key={a} className="text-white/50 text-sm">{a}</li>
@@ -159,16 +164,20 @@ export function Footer() {
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
               </svg>
               <span className="text-xs font-semibold text-gold">
-                Transport Touristique Agréé au Maroc
+                {t("footer", "licensed")}
               </span>
             </div>
             <span className="text-xs text-white/30">
               Dossier N° {CONTACT.license} · {CONTACT.company}
             </span>
           </div>
-          <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} NIGOR 2Transport. Tous droits réservés.
-          </p>
+          <div className="flex items-center gap-3 text-xs text-white/30">
+            <Link href="/policy" className="hover:text-gold transition-colors">
+              {t("footer", "policies") || "Policies"}
+            </Link>
+            <span>·</span>
+            <span>© {new Date().getFullYear()} NIGOR 2Transport. {t("footer", "rights")}</span>
+          </div>
         </div>
       </div>
     </footer>

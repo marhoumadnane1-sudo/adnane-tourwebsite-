@@ -2,12 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const stats = [
-  { value: 5000, suffix: "+", label: "Transfers Completed", decimals: 0 },
-  { value: 4.9, suffix: "★", label: "Average Rating", decimals: 1 },
-  { value: 24, suffix: "/7", label: "Hours Available", decimals: 0 },
-  { value: 100, suffix: "%", label: "Fixed Price", decimals: 0 },
+const statData = [
+  { value: 5000, suffix: "+", labelKey: "transfers", decimals: 0 },
+  { value: 4.9, suffix: "★", labelKey: "rating", decimals: 1 },
+  { value: 24, suffix: "/7", labelKey: "available", decimals: 0 },
+  { value: 100, suffix: "%", labelKey: "fixed", decimals: 0 },
 ];
 
 function PulseRings({ inView }: { inView: boolean }) {
@@ -77,6 +78,15 @@ function Counter({
 }
 
 export function Stats() {
+  const { t } = useTranslation();
+
+  const stats = [
+    { value: 5000, suffix: "+", label: t("stats", "transfers"), decimals: 0 },
+    { value: 4.9, suffix: "★", label: t("stats", "rating"), decimals: 1 },
+    { value: 24, suffix: "/7", label: t("stats", "available"), decimals: 0 },
+    { value: 100, suffix: "%", label: t("stats", "fixed"), decimals: 0 },
+  ];
+
   return (
     <section className="bg-charcoal py-12 sm:py-16 zellige-bg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -5,8 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Users, Luggage, Check, ArrowLeft, AlertCircle } from "lucide-react";
 
 import { useBookingStore } from "@/lib/store";
-import { VEHICLES, calculatePrice, getCityRoutePrice, AIRPORT_PRICES, getDayHirePrice, EUR_RATE, VEHICLE_MULTIPLIERS, getRecommendedVehicle } from "@/lib/prices";
-import { t } from "@/lib/translations";
+import {
+  VEHICLES,
+  calculateAirportPrice,
+  calculateCityPrice,
+  getDayHirePrice,
+  EUR_RATE,
+  getRecommendedVehicle,
+  AIRPORT_TRANSFERS,
+} from "@/lib/prices";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import type { VehicleType } from "@/lib/types";
 import VehicleImage from "@/components/ui/VehicleImage";
@@ -18,31 +26,33 @@ interface VehicleSelectorProps {
 
 function getPriceForFormData(formData: any, vehicleType: VehicleType): number {
   const service = formData.serviceType;
+
   if (service === "airport") {
-    const match = AIRPORT_PRICES.find((p) =>
-      p.airportCode === formData.airportCode &&
-      (p.destination.toLowerCase().includes((formData.destinationAddress ?? "").toLowerCase().split(",")[0]) ||
-       (formData.destinationAddress ?? "").toLowerCase().includes(p.destination.toLowerCase().split(" ")[0].toLowerCase()))
-    );
-    const base = match?.priceEconomy ?? 500;
-    return Math.round(base * VEHICLE_MULTIPLIERS[vehicleType]);
+    // Fuzzy-match the free-text destinationAddress against city names
+    const routes = AIRPORT_TRANSFERS[formData.airportCode ?? "CMN"] || [];
+    const dest = (formData.destinationAddress ?? "").toLowerCase().trim();
+    const match = routes.find((r) => {
+      const city = r.city.toLowerCase();
+      return dest.includes(city) || city.includes(dest.split(",")[0].trim());
+    });
+    return match ? (match.prices[vehicleType] ?? 0) : 0;
   }
+
   if (service === "city-to-city") {
-    const route = getCityRoutePrice(formData.fromCity ?? "", formData.toCity ?? "");
-    const base = route?.priceEconomy ?? 0;
-    return base > 0 ? Math.round(base * VEHICLE_MULTIPLIERS[vehicleType]) : 0;
+    return calculateCityPrice(formData.fromCity ?? "", formData.toCity ?? "", vehicleType);
   }
+
   if (service === "day-hire") {
     return getDayHirePrice(vehicleType, formData.dayHireDuration ?? "full-day");
   }
+
   return 0;
 }
 
 function hasValidRoute(formData: any): boolean {
   if (formData.serviceType === "airport") return !!formData.airportCode;
   if (formData.serviceType === "city-to-city") {
-    const route = getCityRoutePrice(formData.fromCity ?? "", formData.toCity ?? "");
-    return !!route;
+    return calculateCityPrice(formData.fromCity ?? "", formData.toCity ?? "") > 0;
   }
   if (formData.serviceType === "day-hire") return !!formData.baseCity;
   return false;
@@ -51,7 +61,8 @@ function hasValidRoute(formData: any): boolean {
 const CATEGORIES = ["Sedan", "Minivan", "Sprinter Van"] as const;
 
 export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
-  const { formData, updateFormData, setCalculatedPrice, currency, language } = useBookingStore();
+  const { formData, updateFormData, setCalculatedPrice, currency } = useBookingStore();
+  const { t } = useTranslation();
   const recommended = getRecommendedVehicle(formData.passengers ?? 2);
   const [selected, setSelected] = useState<VehicleType>(formData.vehicleType ?? recommended);
   const routeValid = hasValidRoute(formData);
@@ -122,7 +133,7 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
       )}
 
       <div className="text-xs text-charcoal/40 mb-1">
-        {t(language, "booking", "allInclusive")} · Showing vehicles for{" "}
+        {t("booking", "allInclusive")} · Showing vehicles for{" "}
         <span className="font-semibold text-charcoal">{formData.passengers} passenger{(formData.passengers ?? 1) > 1 ? "s" : ""}</span>.
       </div>
 
@@ -143,7 +154,8 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
                   const price = getPriceForFormData(formData, vehicle.id);
                   const isSuitable = vehicle.capacity >= (formData.passengers ?? 1);
                   const isSelected = selected === vehicle.id;
-                  const isRecommended = vehicle.id === recommended && isSuitable;
+                  // Vito is always the "recommended" default
+                  const isRecommended = vehicle.id === "vito" && isSuitable && !formData.vehicleType;
 
                   return (
                     <motion.button
@@ -192,7 +204,7 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
                                 )}
                                 {isRecommended && !isSelected && (
                                   <span className="bg-gold/20 text-yellow-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/30">
-                                    Recommended
+                                    {t("booking", "recommended")}
                                   </span>
                                 )}
                                 {vehicle.badge && !isSelected && !isRecommended && (
@@ -224,7 +236,7 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
                               <div className={cn("text-xl sm:text-2xl font-bold", isSelected ? "text-terracotta" : "text-charcoal")}>
                                 {formatPrice(price)}
                               </div>
-                              <div className="text-[11px] text-charcoal/40">{t(language, "booking", "perVehicle")}</div>
+                              <div className="text-[11px] text-charcoal/40">{t("booking", "perVehicle")}</div>
 
                               {isSelected && (
                                 <div className="mt-2 w-7 h-7 bg-terracotta rounded-full flex items-center justify-center ml-auto">
@@ -246,10 +258,10 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
 
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onBack} className="btn-secondary flex items-center gap-2 px-5 py-3.5">
-          <ArrowLeft className="w-4 h-4" /> {t(language, "booking", "back")}
+          <ArrowLeft className="w-4 h-4" /> {t("booking", "back")}
         </button>
         <button type="button" onClick={handleNext} className="btn-primary flex-1 py-3.5 text-base">
-          {t(language, "booking", "next")} — {t(language, "booking", "step3")}
+          {t("booking", "next")} — {t("booking", "step3")}
         </button>
       </div>
     </div>

@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plane, MapPin, Car, Minus, Plus } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
 import { AIRPORTS, CITIES } from "@/lib/routes";
-import { t } from "@/lib/translations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import type { ServiceType, AirportCode } from "@/lib/types";
 import AddressInput from "@/components/ui/AddressInput";
@@ -48,7 +48,8 @@ interface RouteSelectorProps {
 }
 
 export function RouteSelector({ onNext }: RouteSelectorProps) {
-  const { formData, updateFormData, language } = useBookingStore();
+  const { formData, updateFormData } = useBookingStore();
+  const { t, isRTL } = useTranslation();
   const today = new Date().toISOString().split("T")[0];
 
   // Address fields managed outside RHF, written directly to store
@@ -95,17 +96,17 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
   }
 
   const serviceOptions = [
-    { id: "airport" as ServiceType, icon: Plane, label: t(language, "booking", "airportTransfer"), desc: "Arrive or depart from Casablanca Mohammed V Airport" },
-    { id: "city-to-city" as ServiceType, icon: MapPin, label: t(language, "booking", "cityToCity"), desc: "Direct ride from Casablanca to any city" },
-    { id: "day-hire" as ServiceType, icon: Car, label: t(language, "booking", "dayHire"), desc: "Your own driver for a half or full day" },
+    { id: "airport" as ServiceType, icon: Plane, label: t("booking", "airportTransfer"), desc: "Arrive or depart from Casablanca Mohammed V Airport" },
+    { id: "city-to-city" as ServiceType, icon: MapPin, label: t("booking", "cityToCity"), desc: "Direct ride from Casablanca to any city" },
+    { id: "day-hire" as ServiceType, icon: Car, label: t("booking", "dayHire"), desc: "Your own driver for a half or full day" },
   ];
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-7">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-7" dir={isRTL ? "rtl" : "ltr"}>
       {/* Service Type */}
       <div>
         <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-3">
-          {t(language, "booking", "serviceType")}
+          {t("booking", "serviceType")}
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {serviceOptions.map((opt) => {
@@ -161,16 +162,16 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-                    {t(language, "booking", "direction")}
+                    {t("booking", "direction")}
                   </label>
                   <select {...register("direction")} className="input-field">
-                    <option value="arriving">{t(language, "booking", "arriving")} (Airport → Hotel)</option>
-                    <option value="departing">{t(language, "booking", "departing")} (Hotel → Airport)</option>
+                    <option value="arriving">{t("booking", "arriving")}</option>
+                    <option value="departing">{t("booking", "departing")}</option>
                   </select>
                 </div>
               </div>
               <AddressInput
-                label="Pickup / Drop-off Address"
+                label={t("booking", "hotel")}
                 placeholder="Hotel name, address, or paste Google Maps link..."
                 value={destinationAddress ?? ""}
                 onChange={(val) => setValue("destinationAddress", val)}
@@ -182,7 +183,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">From</label>
+                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">{t("search", "fromCity")}</label>
                   <select {...register("fromCity")} className="input-field">
                     <option value="">Select city...</option>
                     {CITIES.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
@@ -190,7 +191,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
                   {errors.fromCity && <p className="text-red-500 text-xs mt-1">{errors.fromCity.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">To</label>
+                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">{t("search", "toCity")}</label>
                   <select {...register("toCity")} className="input-field">
                     <option value="">Select city...</option>
                     {CITIES.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
@@ -217,7 +218,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">Base City</label>
+                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">{t("search", "baseCity")}</label>
                   <select {...register("baseCity")} className="input-field">
                     <option value="">Select city...</option>
                     {CITIES.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
@@ -225,7 +226,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
                   {errors.baseCity && <p className="text-red-500 text-xs mt-1">{errors.baseCity.message}</p>}
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">Duration</label>
+                  <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">{t("common", "duration")}</label>
                   <select {...register("dayHireDuration")} className="input-field">
                     <option value="half-day">Half Day (5 hours)</option>
                     <option value="full-day">Full Day (10 hours)</option>
@@ -249,14 +250,14 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-            {t(language, "booking", "date")}
+            {t("booking", "date")}
           </label>
           <input type="date" min={today} {...register("date")} className="input-field" />
           {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>}
         </div>
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-            {t(language, "booking", "time")}
+            {t("booking", "time")}
           </label>
           <input type="time" {...register("time")} className="input-field" />
           {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time.message}</p>}
@@ -267,7 +268,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-            {t(language, "booking", "passengers")}
+            {t("booking", "passengers")}
           </label>
           <div className="flex items-center gap-3 input-field">
             <button type="button" onClick={() => setValue("passengers", Math.max(1, passengers - 1))}
@@ -283,7 +284,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
         </div>
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-            {t(language, "booking", "luggage")}
+            {t("booking", "luggage")}
           </label>
           <div className="flex items-center gap-3 input-field">
             <button type="button" onClick={() => setValue("luggage", Math.max(0, luggage - 1))}
@@ -300,7 +301,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
       </div>
 
       <button type="submit" className="btn-primary w-full py-4 text-base">
-        {t(language, "booking", "next")} — {t(language, "booking", "step2")}
+        {t("booking", "next")} — {t("booking", "step2")}
       </button>
     </form>
   );

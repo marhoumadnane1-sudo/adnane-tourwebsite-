@@ -1,70 +1,77 @@
-import type { AirportTransferPrice, DayHirePrice, Route, Vehicle, AirportCode, VehicleType } from "./types";
+import type { Vehicle, VehicleType } from "./types";
 
 // EUR conversion rate
 export const EUR_RATE = 10.8;
 
-// Vehicle multipliers relative to base (economy/skoda) price
-export const VEHICLE_MULTIPLIERS: Record<VehicleType, number> = {
-  "skoda":      1.0,
-  "mercedes-e": 1.5,
-  "vito":       1.4,
-  "sprinter":   2.2,
+export type PriceMap = Record<VehicleType, number>;
+export type DayDuration = "half-day" | "full-day";
+
+// ─── AIRPORT TRANSFER PRICES (per vehicle, all-inclusive) ────────────────────
+// All prices are exact per vehicle — no multipliers applied.
+// Vito is the main / default vehicle.
+
+export const AIRPORT_TRANSFERS: Record<string, {
+  city: string;
+  duration: string;
+  prices: PriceMap;
+}[]> = {
+  CMN: [
+    { city: 'Casablanca',  duration: '40 min', prices: { skoda: 300,  'mercedes-e': 550,  vito: 400,  sprinter: 650  } },
+    { city: 'Mohammedia',  duration: '30 min', prices: { skoda: 350,  'mercedes-e': 650,  vito: 500,  sprinter: 750  } },
+    { city: 'Rabat',       duration: '1h 15',  prices: { skoda: 700,  'mercedes-e': 1250, vito: 1000, sprinter: 1550 } },
+    { city: 'El Jadida',   duration: '1h 15',  prices: { skoda: 700,  'mercedes-e': 1250, vito: 1000, sprinter: 1550 } },
+    { city: 'Marrakech',   duration: '3h 00',  prices: { skoda: 1050, 'mercedes-e': 1900, vito: 1500, sprinter: 2300 } },
+    { city: 'Fez',         duration: '3h 30',  prices: { skoda: 1450, 'mercedes-e': 2600, vito: 2000, sprinter: 3200 } },
+    { city: 'Tangier',     duration: '3h 30',  prices: { skoda: 1950, 'mercedes-e': 3500, vito: 2700, sprinter: 4300 } },
+    { city: 'Agadir',      duration: '5h 00',  prices: { skoda: 2500, 'mercedes-e': 4500, vito: 3500, sprinter: 5500 } },
+    { city: 'Meknes',      duration: '3h 00',  prices: { skoda: 1350, 'mercedes-e': 2450, vito: 1900, sprinter: 3000 } },
+    { city: 'Chefchaouen', duration: '4h 30',  prices: { skoda: 2000, 'mercedes-e': 3600, vito: 2800, sprinter: 4400 } },
+    { city: 'Essaouira',   duration: '4h 30',  prices: { skoda: 2150, 'mercedes-e': 3850, vito: 3000, sprinter: 4750 } },
+    { city: 'Ouarzazate',  duration: '5h 30',  prices: { skoda: 2500, 'mercedes-e': 4500, vito: 3500, sprinter: 5500 } },
+    { city: 'Merzouga',    duration: '8h 00',  prices: { skoda: 3200, 'mercedes-e': 5750, vito: 4500, sprinter: 7050 } },
+    { city: 'Tetouan',     duration: '4h 00',  prices: { skoda: 2500, 'mercedes-e': 4500, vito: 3500, sprinter: 5500 } },
+  ],
 };
-
-// ─── AIRPORT TRANSFER PRICES (per vehicle, economy, all-inclusive) ───────────
-
-export const AIRPORT_PRICES: AirportTransferPrice[] = [
-  // CMN – Casablanca Mohammed V
-  { airportCode: "CMN", destination: "Casablanca City Center", priceEconomy: 350 },
-  { airportCode: "CMN", destination: "Mohammedia", priceEconomy: 300 },
-  { airportCode: "CMN", destination: "Rabat", priceEconomy: 500 },
-  { airportCode: "CMN", destination: "El Jadida", priceEconomy: 600 },
-  { airportCode: "CMN", destination: "Marrakech", priceEconomy: 1250 },
-  { airportCode: "CMN", destination: "Fez", priceEconomy: 1100 },
-  { airportCode: "CMN", destination: "Tangier", priceEconomy: 1500 },
-  { airportCode: "CMN", destination: "Agadir", priceEconomy: 2000 },
-  { airportCode: "CMN", destination: "Essaouira", priceEconomy: 1400 },
-  { airportCode: "CMN", destination: "Chefchaouen", priceEconomy: 1300 },
-  { airportCode: "CMN", destination: "Ouarzazate", priceEconomy: 1800 },
-  { airportCode: "CMN", destination: "Meknes", priceEconomy: 900 },
-];
 
 // ─── CITY TO CITY PRICES ─────────────────────────────────────────────────────
 
-export const CITY_ROUTES: Route[] = [
-  { id: "casa-marrakech", from: "Casablanca", to: "Marrakech", distanceKm: 240, durationText: "3h", priceEconomy: 1100, popular: true },
-  { id: "casa-rabat", from: "Casablanca", to: "Rabat", distanceKm: 90, durationText: "1h15", priceEconomy: 450, popular: true },
-  { id: "casa-tangier", from: "Casablanca", to: "Tangier", distanceKm: 340, durationText: "3h30", priceEconomy: 1400, popular: true },
-  { id: "casa-fez", from: "Casablanca", to: "Fez", distanceKm: 300, durationText: "3h30", priceEconomy: 1200, popular: true },
-  { id: "casa-agadir", from: "Casablanca", to: "Agadir", distanceKm: 460, durationText: "5h", priceEconomy: 1900, popular: true },
-  { id: "casa-eljadida", from: "Casablanca", to: "El Jadida", distanceKm: 100, durationText: "1h15", priceEconomy: 450, popular: true },
-  { id: "casa-mohammedia", from: "Casablanca", to: "Mohammedia", distanceKm: 70, durationText: "1h", priceEconomy: 300, popular: false },
-  { id: "casa-essaouira", from: "Casablanca", to: "Essaouira", distanceKm: 350, durationText: "4h", priceEconomy: 1400, popular: false },
-  { id: "casa-chefchaouen", from: "Casablanca", to: "Chefchaouen", distanceKm: 400, durationText: "4h30", priceEconomy: 1500, popular: false },
-  { id: "casa-meknes", from: "Casablanca", to: "Meknes", distanceKm: 230, durationText: "2h30", priceEconomy: 900, popular: false },
-  { id: "casa-ouarzazate", from: "Casablanca", to: "Ouarzazate", distanceKm: 430, durationText: "5h", priceEconomy: 1800, popular: false },
+export const CITY_ROUTES: {
+  from: string;
+  to: string;
+  distance: number;
+  duration: string;
+  prices: PriceMap;
+}[] = [
+  { from: 'Casablanca', to: 'Marrakech',   distance: 240, duration: '3h 00', prices: { skoda: 1050, 'mercedes-e': 1900, vito: 1500, sprinter: 2300 } },
+  { from: 'Casablanca', to: 'Rabat',       distance: 90,  duration: '1h 15', prices: { skoda: 700,  'mercedes-e': 1250, vito: 1000, sprinter: 1550 } },
+  { from: 'Casablanca', to: 'Tangier',     distance: 340, duration: '3h 30', prices: { skoda: 1950, 'mercedes-e': 3500, vito: 2700, sprinter: 4300 } },
+  { from: 'Casablanca', to: 'Fez',         distance: 300, duration: '3h 30', prices: { skoda: 1450, 'mercedes-e': 2600, vito: 2000, sprinter: 3200 } },
+  { from: 'Casablanca', to: 'Agadir',      distance: 460, duration: '5h 00', prices: { skoda: 2500, 'mercedes-e': 4500, vito: 3500, sprinter: 5500 } },
+  { from: 'Casablanca', to: 'El Jadida',   distance: 100, duration: '1h 15', prices: { skoda: 700,  'mercedes-e': 1250, vito: 1000, sprinter: 1550 } },
+  { from: 'Casablanca', to: 'Meknes',      distance: 280, duration: '3h 00', prices: { skoda: 1350, 'mercedes-e': 2450, vito: 1900, sprinter: 3000 } },
+  { from: 'Casablanca', to: 'Essaouira',   distance: 370, duration: '4h 30', prices: { skoda: 2150, 'mercedes-e': 3850, vito: 3000, sprinter: 4750 } },
+  { from: 'Casablanca', to: 'Chefchaouen', distance: 430, duration: '5h 00', prices: { skoda: 2000, 'mercedes-e': 3600, vito: 2800, sprinter: 4400 } },
+  { from: 'Casablanca', to: 'Ouarzazate',  distance: 450, duration: '5h 30', prices: { skoda: 2500, 'mercedes-e': 4500, vito: 3500, sprinter: 5500 } },
+  { from: 'Casablanca', to: 'Merzouga',    distance: 680, duration: '8h 00', prices: { skoda: 3200, 'mercedes-e': 5750, vito: 4500, sprinter: 7050 } },
+  { from: 'Casablanca', to: 'Tetouan',     distance: 370, duration: '4h 00', prices: { skoda: 2500, 'mercedes-e': 4500, vito: 3500, sprinter: 5500 } },
 ];
 
-export const POPULAR_ROUTES = CITY_ROUTES.filter((r) => r.popular);
+// ─── DAY HIRE RATES ──────────────────────────────────────────────────────────
 
-// ─── DAY HIRE PRICES ─────────────────────────────────────────────────────────
-
-export const DAY_HIRE_PRICES: DayHirePrice[] = [
-  { vehicle: "skoda",      halfDay: 500,  fullDay: 800,  extraHour: 100 },
-  { vehicle: "mercedes-e", halfDay: 750,  fullDay: 1200, extraHour: 150 },
-  { vehicle: "vito",       halfDay: 900,  fullDay: 1400, extraHour: 160 },
-  { vehicle: "sprinter",   halfDay: 1400, fullDay: 2200, extraHour: 250 },
-];
-
-export const MULTI_DAY_DISCOUNTS = {
-  "2-days": 0.05,
-  "3-plus-days": 0.10,
+export const DAY_HIRE_RATES: Record<VehicleType, {
+  halfDay: number;
+  fullDay: number;
+  extraHour: number;
+}> = {
+  'skoda':       { halfDay: 1200, fullDay: 1500, extraHour: 0 },
+  'mercedes-e':  { halfDay: 1500, fullDay: 2000, extraHour: 0 },
+  'vito':        { halfDay: 1500, fullDay: 2000, extraHour: 0 },
+  'sprinter':    { halfDay: 2000, fullDay: 3000, extraHour: 0 },
 };
 
 // ─── VEHICLES ─────────────────────────────────────────────────────────────────
 
 export const VEHICLES: Vehicle[] = [
-  // ── Sedan ──────────────────────────────────────────────────────────────────
   {
     id: "skoda",
     name: "Skoda Superb",
@@ -89,7 +96,6 @@ export const VEHICLES: Vehicle[] = [
     badge: "Business",
     bgColor: "#1a1a2e",
   },
-  // ── Minivan ────────────────────────────────────────────────────────────────
   {
     id: "vito",
     name: "Mercedes Vito",
@@ -102,7 +108,6 @@ export const VEHICLES: Vehicle[] = [
     badge: "Most Popular",
     bgColor: "#1a1a2e",
   },
-  // ── Sprinter Van ───────────────────────────────────────────────────────────
   {
     id: "sprinter",
     name: "Mercedes Sprinter",
@@ -117,53 +122,95 @@ export const VEHICLES: Vehicle[] = [
   },
 ];
 
-// ─── PRICE CALCULATOR ─────────────────────────────────────────────────────────
+// ─── PRICE CALCULATORS ────────────────────────────────────────────────────────
 
-export function calculatePrice(
-  basePrice: number,
+/** Fuzzy match destination text against city names in AIRPORT_TRANSFERS. */
+function findAirportRoute(airportCode: string, destination: string) {
+  const routes = AIRPORT_TRANSFERS[airportCode] || [];
+  const dest = destination.toLowerCase().trim();
+  return routes.find((r) => {
+    const city = r.city.toLowerCase();
+    return dest.includes(city) || city.includes(dest.split(",")[0].trim());
+  });
+}
+
+export function calculateAirportPrice(
+  airportCode: string,
+  city: string,
+  vehicleType: VehicleType = "vito"
+): number {
+  const route = findAirportRoute(airportCode, city);
+  if (!route) return 0;
+  return route.prices[vehicleType] ?? 0;
+}
+
+export function calculateCityPrice(
+  from: string,
+  to: string,
+  vehicleType: VehicleType = "vito"
+): number {
+  const route = CITY_ROUTES.find(
+    (r) =>
+      (r.from.toLowerCase() === from.toLowerCase() &&
+        r.to.toLowerCase() === to.toLowerCase()) ||
+      (r.from.toLowerCase() === to.toLowerCase() &&
+        r.to.toLowerCase() === from.toLowerCase())
+  );
+  if (!route) return 0;
+  return route.prices[vehicleType] ?? 0;
+}
+
+export function calculateDayHirePrice(
   vehicleType: VehicleType,
-  currency: "MAD" | "EUR" = "MAD"
-): { basePrice: number; total: number; inEur: number } {
-  const multiplier = VEHICLE_MULTIPLIERS[vehicleType];
-  const total = Math.round(basePrice * multiplier);
-  const inEur = Math.round((total / EUR_RATE) * 10) / 10;
-  return { basePrice, total, inEur };
+  duration: DayDuration,
+  numDays = 1
+): number {
+  const rates = DAY_HIRE_RATES[vehicleType];
+  if (!rates) return 0;
+  if (duration === "half-day") return rates.halfDay;
+  const discount = numDays >= 3 ? 0.10 : numDays === 2 ? 0.05 : 0;
+  const total = rates.fullDay * numDays;
+  return Math.round((total * (1 - discount)) / 50) * 50;
 }
 
-export function getAirportPrice(
-  airportCode: AirportCode,
-  destination: string
-): number | null {
-  const match = AIRPORT_PRICES.find(
-    (p) =>
-      p.airportCode === airportCode &&
-      p.destination.toLowerCase() === destination.toLowerCase()
+export function getAllVehiclePricesForAirport(
+  airportCode: string,
+  city: string
+): PriceMap | null {
+  const route = findAirportRoute(airportCode, city);
+  return route ? route.prices : null;
+}
+
+export function getAllVehiclePricesForCity(
+  from: string,
+  to: string
+): PriceMap | null {
+  const route = CITY_ROUTES.find(
+    (r) =>
+      (r.from.toLowerCase() === from.toLowerCase() &&
+        r.to.toLowerCase() === to.toLowerCase()) ||
+      (r.from.toLowerCase() === to.toLowerCase() &&
+        r.to.toLowerCase() === from.toLowerCase())
   );
-  return match ? match.priceEconomy : null;
+  return route ? route.prices : null;
 }
 
-export function getCityRoutePrice(from: string, to: string): Route | null {
-  return (
-    CITY_ROUTES.find(
-      (r) =>
-        (r.from.toLowerCase() === from.toLowerCase() && r.to.toLowerCase() === to.toLowerCase()) ||
-        (r.from.toLowerCase() === to.toLowerCase() && r.to.toLowerCase() === from.toLowerCase())
-    ) ?? null
-  );
-}
-
+/** Vito is the main vehicle — recommended for all groups up to 7. */
 export function getRecommendedVehicle(passengers: number): VehicleType {
-  if (passengers <= 3) return "skoda";
   if (passengers <= 7) return "vito";
   return "sprinter";
 }
 
+/**
+ * getDayHirePrice — supports legacy duration strings from RouteSelector
+ * ("half-day" | "full-day" | "2-days" | "3-plus-days")
+ */
 export function getDayHirePrice(vehicle: VehicleType, duration: string): number {
-  const prices = DAY_HIRE_PRICES.find((p) => p.vehicle === vehicle);
-  if (!prices) return 0;
-  if (duration === "half-day") return prices.halfDay;
-  if (duration === "full-day") return prices.fullDay;
-  if (duration === "2-days") return Math.round(prices.fullDay * 2 * (1 - MULTI_DAY_DISCOUNTS["2-days"]));
-  if (duration === "3-plus-days") return Math.round(prices.fullDay * 3 * (1 - MULTI_DAY_DISCOUNTS["3-plus-days"]));
-  return prices.fullDay;
+  const rates = DAY_HIRE_RATES[vehicle];
+  if (!rates) return 0;
+  if (duration === "half-day")     return rates.halfDay;
+  if (duration === "full-day")     return rates.fullDay;
+  if (duration === "2-days")       return Math.round(rates.fullDay * 2 * 0.95 / 50) * 50;
+  if (duration === "3-plus-days")  return Math.round(rates.fullDay * 3 * 0.90 / 50) * 50;
+  return rates.fullDay;
 }

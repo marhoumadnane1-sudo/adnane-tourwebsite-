@@ -7,7 +7,7 @@ import { Plane, MapPin, Clock, ArrowRight, Building2 } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
 import { AIRPORTS, CITIES } from "@/lib/routes";
 import { MOROCCO_LOCATIONS } from "@/lib/locations";
-import { t } from "@/lib/translations";
+import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import type { AirportCode } from "@/lib/types";
 
@@ -126,7 +126,8 @@ function DestinationInput({
 
 export function SearchBar() {
   const router = useRouter();
-  const { updateFormData, language } = useBookingStore();
+  const { updateFormData } = useBookingStore();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>("airport");
   const [airport, setAirport] = useState("");
   const [destination, setDestination] = useState("");
@@ -151,9 +152,9 @@ export function SearchBar() {
   }
 
   const tabs = [
-    { id: "airport" as Tab, label: t(language, "search", "airportTab"), icon: Plane },
-    { id: "city" as Tab, label: t(language, "search", "cityTab"), icon: MapPin },
-    { id: "dayhire" as Tab, label: t(language, "search", "dayTab"), icon: Clock },
+    { id: "airport" as Tab, label: t("search", "airportTab"), icon: Plane },
+    { id: "city" as Tab, label: t("search", "cityTab"), icon: MapPin },
+    { id: "dayhire" as Tab, label: t("search", "dayTab"), icon: Clock },
   ];
 
   return (
@@ -200,7 +201,7 @@ export function SearchBar() {
                     onChange={(e) => setAirport(e.target.value)}
                     className="flex-1 min-w-[160px] bg-white/90 rounded-xl px-4 py-3 text-charcoal text-sm font-medium focus:outline-none focus:ring-2 focus:ring-terracotta/50 border-0"
                   >
-                    <option value="">{t(language, "search", "selectAirport")}</option>
+                    <option value="">{t("search", "selectAirport")}</option>
                     {AIRPORTS.map((a) => (
                       <option key={a.code} value={a.code}>{a.code} — {a.name}</option>
                     ))}
@@ -209,7 +210,7 @@ export function SearchBar() {
                     <DestinationInput
                       value={destination}
                       onChange={setDestination}
-                      placeholder={t(language, "search", "destinationCity")}
+                      placeholder={t("search", "destinationCity")}
                     />
                   </div>
                 </>
@@ -222,7 +223,7 @@ export function SearchBar() {
                     onChange={(e) => setFromCity(e.target.value)}
                     className="flex-1 bg-white/90 rounded-xl px-4 py-3 text-charcoal text-sm font-medium focus:outline-none focus:ring-2 focus:ring-terracotta/50 border-0"
                   >
-                    <option value="">{t(language, "search", "fromCity")}</option>
+                    <option value="">{t("search", "fromCity")}</option>
                     {CITIES.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                   </select>
                   <select
@@ -230,7 +231,7 @@ export function SearchBar() {
                     onChange={(e) => setToCity(e.target.value)}
                     className="flex-1 bg-white/90 rounded-xl px-4 py-3 text-charcoal text-sm font-medium focus:outline-none focus:ring-2 focus:ring-terracotta/50 border-0"
                   >
-                    <option value="">{t(language, "search", "toCity")}</option>
+                    <option value="">{t("search", "toCity")}</option>
                     {CITIES.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                   </select>
                 </>
@@ -243,7 +244,7 @@ export function SearchBar() {
                     onChange={(e) => setBaseCity(e.target.value)}
                     className="flex-1 bg-white/90 rounded-xl px-4 py-3 text-charcoal text-sm font-medium focus:outline-none focus:ring-2 focus:ring-terracotta/50 border-0"
                   >
-                    <option value="">{t(language, "search", "baseCity")}</option>
+                    <option value="">{t("search", "baseCity")}</option>
                     {CITIES.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                   </select>
                   <select
@@ -273,7 +274,7 @@ export function SearchBar() {
                 className="bg-white/90 rounded-xl px-4 py-3 text-charcoal text-sm font-medium focus:outline-none focus:ring-2 focus:ring-terracotta/50 border-0"
               >
                 {[1,2,3,4,5,6,7,8,9,10,11,12,13,14].map((n) => (
-                  <option key={n} value={n}>{n} {n === 1 ? t(language, "search", "passenger") : t(language, "search", "passengers")}</option>
+                  <option key={n} value={n}>{n} {n === 1 ? t("search", "passenger") : t("search", "passengers")}</option>
                 ))}
               </select>
 
@@ -281,7 +282,7 @@ export function SearchBar() {
                 onClick={handleSearch}
                 className="bg-terracotta hover:bg-terracotta-dark text-white font-semibold px-6 py-3 rounded-xl transition-all duration-200 hover:shadow-glow flex items-center gap-2 whitespace-nowrap"
               >
-                {t(language, "search", "getPrice")}
+                {t("search", "getPrice")}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </motion.div>

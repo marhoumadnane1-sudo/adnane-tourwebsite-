@@ -4,46 +4,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { Plane, MapPin, Car, ArrowRight, Clock, Shield, Star } from "lucide-react";
-
-const services = [
-  {
-    icon: Plane,
-    title: "Airport Transfers",
-    description:
-      "Meet & greet at arrivals with your name on a sign. We track your flight in real time — if it's delayed, your driver waits.",
-    features: ["90 min free wait time", "Real-time flight tracking", "Casablanca Mohammed V (CMN)"],
-    color: "bg-blue-50",
-    iconColor: "text-blue-600",
-    glowColor: "rgba(59,130,246,0.15)",
-    href: "/services#airport",
-    cta: "Book Airport Transfer",
-  },
-  {
-    icon: MapPin,
-    title: "City to City",
-    description:
-      "Direct private rides from Casablanca to any major city. No shared taxis, no bus stops — straight to your destination.",
-    features: ["Door-to-door service", "20+ routes available", "Fixed all-inclusive price"],
-    color: "bg-terracotta/5",
-    iconColor: "text-terracotta",
-    glowColor: "rgba(181,69,27,0.15)",
-    href: "/services#city-to-city",
-    cta: "See All Routes",
-    featured: true,
-  },
-  {
-    icon: Car,
-    title: "Private Day Hire",
-    description:
-      "Your own private driver for a half day, full day, or multiple days. Explore Morocco at your own pace.",
-    features: ["Half day from 500 DH", "Multiple day discounts", "Custom itineraries"],
-    color: "bg-gold/10",
-    iconColor: "text-gold-dark",
-    glowColor: "rgba(212,168,67,0.15)",
-    href: "/services#day-hire",
-    cta: "Get a Quote",
-  },
-];
+import { useTranslation } from "@/hooks/useTranslation";
 
 const containerVariants = {
   hidden: {},
@@ -60,7 +21,44 @@ const cardVariants = {
   },
 };
 
-function TiltCard({ service, children }: { service: typeof services[0]; children: React.ReactNode }) {
+const serviceConfig = [
+  {
+    icon: Plane,
+    titleKey: "airport",
+    descKey: "airportDesc",
+    features: ["90 min free wait time", "Real-time flight tracking", "Casablanca Mohammed V (CMN)"],
+    color: "bg-blue-50",
+    iconColor: "text-blue-600",
+    glowColor: "rgba(59,130,246,0.15)",
+    href: "/services#airport",
+    cta: "Book Airport Transfer",
+  },
+  {
+    icon: MapPin,
+    titleKey: "city",
+    descKey: "cityDesc",
+    features: ["Door-to-door service", "20+ routes available", "Fixed all-inclusive price"],
+    color: "bg-terracotta/5",
+    iconColor: "text-terracotta",
+    glowColor: "rgba(181,69,27,0.15)",
+    href: "/services#city-to-city",
+    cta: "See All Routes",
+    featured: true,
+  },
+  {
+    icon: Car,
+    titleKey: "day",
+    descKey: "dayDesc",
+    features: ["Half day from 500 DH", "Multiple day discounts", "Custom itineraries"],
+    color: "bg-gold/10",
+    iconColor: "text-gold-dark",
+    glowColor: "rgba(212,168,67,0.15)",
+    href: "/services#day-hire",
+    cta: "Get a Quote",
+  },
+];
+
+function TiltCard({ glowColor, featured, children }: { glowColor: string; featured?: boolean; children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
   const [shinePos, setShinePos] = useState({ x: 50, y: 50 });
@@ -81,7 +79,6 @@ function TiltCard({ service, children }: { service: typeof services[0]; children
     const dy = e.clientY - cy;
     rawRotateY.set((dx / (rect.width / 2)) * 9);
     rawRotateX.set(-(dy / (rect.height / 2)) * 9);
-    // shine position as %
     setShinePos({
       x: ((e.clientX - rect.left) / rect.width) * 100,
       y: ((e.clientY - rect.top) / rect.height) * 100,
@@ -102,9 +99,9 @@ function TiltCard({ service, children }: { service: typeof services[0]; children
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
-      whileHover={{ y: -8, boxShadow: `0 20px 60px ${service.glowColor}` }}
+      whileHover={{ y: -8, boxShadow: `0 20px 60px ${glowColor}` }}
       className={`card p-8 relative overflow-hidden group cursor-default ${
-        service.featured ? "ring-2 ring-terracotta shadow-glow" : ""
+        featured ? "ring-2 ring-terracotta shadow-glow" : ""
       }`}
     >
       {/* Shine overlay */}
@@ -121,6 +118,14 @@ function TiltCard({ service, children }: { service: typeof services[0]; children
 }
 
 export function ServiceCards() {
+  const { t } = useTranslation();
+
+  const services = serviceConfig.map((s) => ({
+    ...s,
+    title: t("services", s.titleKey),
+    desc: t("services", s.descKey),
+  }));
+
   return (
     <section className="py-20 sm:py-28 bg-cream" id="services">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -134,14 +139,10 @@ export function ServiceCards() {
         >
           <span className="inline-flex items-center gap-2 text-terracotta text-sm font-semibold uppercase tracking-widest mb-3">
             <span className="w-6 h-px bg-terracotta" />
-            What We Offer
+            {t("services", "title")}
             <span className="w-6 h-px bg-terracotta" />
           </span>
-          <h2 className="section-title mb-4">Three Ways to Travel Morocco</h2>
-          <p className="section-subtitle">
-            Whether you&apos;re arriving from the airport, travelling between cities, or want a private driver for the
-            day — we have you covered.
-          </p>
+          <h2 className="section-title mb-4">{t("services", "subtitle")}</h2>
         </motion.div>
 
         {/* Cards */}
@@ -156,10 +157,10 @@ export function ServiceCards() {
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <TiltCard key={service.title} service={service}>
+              <TiltCard key={service.titleKey} glowColor={service.glowColor} featured={service.featured}>
                 {service.featured && (
                   <div className="absolute top-4 right-4 bg-terracotta text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full">
-                    Most Popular
+                    {t("booking", "mostPopular")}
                   </div>
                 )}
 
@@ -172,7 +173,7 @@ export function ServiceCards() {
                 </motion.div>
 
                 <h3 className="text-xl font-bold text-charcoal mb-3">{service.title}</h3>
-                <p className="text-charcoal/60 text-sm leading-relaxed mb-6">{service.description}</p>
+                <p className="text-charcoal/60 text-sm leading-relaxed mb-6">{service.desc}</p>
 
                 <ul className="space-y-2.5 mb-8">
                   {service.features.map((f, fi) => (

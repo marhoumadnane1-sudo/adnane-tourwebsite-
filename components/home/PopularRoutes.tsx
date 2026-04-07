@@ -1,17 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { motion, useAnimationControls } from "framer-motion";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
-import { POPULAR_ROUTES } from "@/lib/prices";
+import { POPULAR_ROUTES } from "@/lib/routes";
 import { useBookingStore } from "@/lib/store";
+import { EUR_RATE } from "@/lib/prices";
 
 export function PopularRoutes() {
   const { currency } = useBookingStore();
-  const displayRoutes = POPULAR_ROUTES.slice(0, 8);
-  // Duplicate for seamless loop
-  const loopRoutes = [...displayRoutes, ...displayRoutes];
+
+  // Duplicate for seamless infinite loop
+  const loopRoutes = [...POPULAR_ROUTES, ...POPULAR_ROUTES];
 
   const controls = useAnimationControls();
   const [paused, setPaused] = useState(false);
@@ -23,7 +24,6 @@ export function PopularRoutes() {
 
   function handleHoverEnd() {
     setPaused(false);
-    // Resume from current position
     controls.start({
       x: [null, "-50%"],
       transition: { duration: 28, ease: "linear", repeat: Infinity },
@@ -58,7 +58,7 @@ export function PopularRoutes() {
         </motion.div>
       </div>
 
-      {/* Ticker — full-width, no horizontal padding */}
+      {/* Ticker — full-width */}
       <div
         className="relative w-full"
         onMouseEnter={handleHoverStart}
@@ -81,25 +81,28 @@ export function PopularRoutes() {
           viewport={{ once: true }}
         >
           {loopRoutes.map((route, idx) => {
-            const price =
+            // Vito price shown, labeled clearly
+            const vitoPrice =
               currency === "EUR"
-                ? `€${(route.priceEconomy / 10.8).toFixed(0)}`
-                : `${route.priceEconomy.toLocaleString("fr-MA")} DH`;
+                ? `€${(route.price / EUR_RATE).toFixed(0)}`
+                : `${route.price.toLocaleString("fr-MA")} DH`;
 
             return (
               <motion.div
-                key={`${route.id}-${idx}`}
+                key={`${route.from}-${route.to}-${idx}`}
                 whileHover={{ y: -6, boxShadow: "0 12px 40px rgba(26,26,46,0.14)" }}
-                className="bg-white rounded-2xl p-5 shadow-card w-[220px] flex-shrink-0 cursor-pointer group"
+                className="bg-white rounded-2xl p-5 shadow-card w-[230px] flex-shrink-0 cursor-pointer group"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-1.5 text-terracotta">
                     <MapPin className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-xs font-semibold uppercase tracking-wide">Route</span>
+                    <span className="text-xs font-semibold uppercase tracking-wide">
+                      {route.serviceType === "airport" ? "Airport" : "City"}
+                    </span>
                   </div>
                   <div className="flex items-center gap-1 text-charcoal/40 text-xs">
                     <Clock className="w-3 h-3" />
-                    {route.durationText}
+                    {route.duration}
                   </div>
                 </div>
 
@@ -113,17 +116,14 @@ export function PopularRoutes() {
                   <p className="font-bold text-charcoal text-sm leading-tight">{route.to}</p>
                 </div>
 
-                <div className="text-xs text-charcoal/40 mb-4">
-                  {route.distanceKm} km
-                </div>
-
-                <div className="flex items-center justify-between">
+                <div className="flex items-end justify-between">
                   <div>
-                    <p className="text-xl font-bold text-terracotta">{price}</p>
-                    <p className="text-[10px] text-charcoal/40">per vehicle</p>
+                    <p className="text-xl font-bold text-terracotta">{vitoPrice}</p>
+                    <p className="text-[10px] text-charcoal/40 leading-tight">Mercedes Vito</p>
+                    <p className="text-[10px] text-charcoal/30 leading-tight">per vehicle</p>
                   </div>
                   <Link
-                    href={`/book?from=${route.from}&to=${route.to}`}
+                    href={`/book`}
                     onClick={(e) => e.stopPropagation()}
                     className="bg-terracotta/10 hover:bg-terracotta text-terracotta hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 group-hover:bg-terracotta group-hover:text-white"
                   >
@@ -136,7 +136,7 @@ export function PopularRoutes() {
         </motion.div>
       </div>
 
-      {/* Pause hint */}
+      {/* Hint */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.p
           initial={{ opacity: 0 }}
@@ -145,7 +145,7 @@ export function PopularRoutes() {
           transition={{ delay: 0.6 }}
           className="text-center text-charcoal/40 text-xs mt-8"
         >
-          Economy Sedan prices shown · Hover to pause · All prices per vehicle, all-inclusive
+          Mercedes Vito prices shown (main vehicle) · Hover to pause · All prices per vehicle, all-inclusive
         </motion.p>
       </div>
     </section>

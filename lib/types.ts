@@ -2,6 +2,8 @@ export type ServiceType = "airport" | "city-to-city" | "day-hire";
 
 export type VehicleType = "skoda" | "mercedes-e" | "vito" | "sprinter";
 
+export type PriceMap = Record<VehicleType, number>;
+
 export type AirportCode = "CMN";
 
 export type Direction = "arriving" | "departing";
@@ -37,26 +39,11 @@ export interface Vehicle {
 }
 
 export interface Route {
-  id: string;
   from: string;
   to: string;
-  distanceKm: number;
-  durationText: string;
-  priceEconomy: number;
-  popular?: boolean;
-}
-
-export interface AirportTransferPrice {
-  airportCode: AirportCode;
-  destination: string;
-  priceEconomy: number;
-}
-
-export interface DayHirePrice {
-  vehicle: VehicleType;
-  halfDay: number;
-  fullDay: number;
-  extraHour: number;
+  distance: number;
+  duration: string;
+  prices: PriceMap;
 }
 
 export interface BookingFormData {
@@ -92,7 +79,6 @@ export interface BookingFormData {
 
 export interface PriceCalculation {
   basePrice: number;
-  vehicleMultiplier: number;
   totalPrice: number;
   currency: "MAD" | "EUR";
 }

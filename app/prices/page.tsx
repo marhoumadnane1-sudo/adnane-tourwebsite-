@@ -3,29 +3,33 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Info } from "lucide-react";
-import { AIRPORT_PRICES, CITY_ROUTES, DAY_HIRE_PRICES, VEHICLE_MULTIPLIERS, EUR_RATE } from "@/lib/prices";
+import { ArrowRight, Info, Star } from "lucide-react";
+import { AIRPORT_TRANSFERS, CITY_ROUTES, DAY_HIRE_RATES, EUR_RATE } from "@/lib/prices";
 import { AIRPORTS } from "@/lib/routes";
 import { useBookingStore } from "@/lib/store";
-import type { AirportCode } from "@/lib/types";
+import type { AirportCode, VehicleType } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { id: "airport", label: "Airport Transfers" },
-  { id: "city", label: "City to City" },
-  { id: "dayhire", label: "Day Hire" },
+  { id: "airport",  label: "Airport Transfers" },
+  { id: "city",     label: "City to City" },
+  { id: "dayhire",  label: "Day Hire" },
 ];
 
-const VEHICLE_LABELS: Record<string, string> = {
-  "skoda": "Skoda",
-  "mercedes-e": "Mercedes E",
-  "vito": "Vito (7)",
-  "sprinter": "Sprinter (14)",
-}
-const PRICE_COLUMNS = ["skoda", "mercedes-e", "vito", "sprinter"] as const;;
+type ColKey = VehicleType;
 
-function PriceBadge({ price, currency }: { price: number; currency: "MAD" | "EUR" }) {
-  const display = currency === "EUR" ? `€${(price / EUR_RATE).toFixed(0)}` : `${price.toLocaleString("fr-MA")} DH`;
+const PRICE_COLUMNS: { key: ColKey; label: string; main?: boolean }[] = [
+  { key: "skoda",      label: "Skoda Superb" },
+  { key: "mercedes-e", label: "Mercedes E-Class" },
+  { key: "vito",       label: "Mercedes Vito", main: true },
+  { key: "sprinter",   label: "Mercedes Sprinter" },
+];
+
+function PriceCell({ price, currency }: { price: number; currency: "MAD" | "EUR" }) {
+  const display =
+    currency === "EUR"
+      ? `€${(price / EUR_RATE).toFixed(0)}`
+      : `${price.toLocaleString("fr-MA")} DH`;
   return <span className="font-bold text-terracotta">{display}</span>;
 }
 
@@ -34,7 +38,12 @@ export default function PricesPage() {
   const [activeAirport, setActiveAirport] = useState<AirportCode>("CMN");
   const { currency, setCurrency, updateFormData } = useBookingStore();
 
-  const airportPrices = AIRPORT_PRICES.filter((p) => p.airportCode === activeAirport);
+  const airportRoutes = AIRPORT_TRANSFERS[activeAirport] ?? [];
+
+  // Lowest skoda price for the note under each table
+  const minSkoda = Math.min(...airportRoutes.map((r) => r.prices.skoda));
+  const minEClass = Math.min(...airportRoutes.map((r) => r.prices["mercedes-e"]));
+  const minSprinter = Math.min(...airportRoutes.map((r) => r.prices.sprinter));
 
   function bookCityRoute(from: string, to: string) {
     updateFormData({ serviceType: "city-to-city", fromCity: from, toCity: to });
@@ -84,7 +93,7 @@ export default function PricesPage() {
             ))}
           </div>
 
-          {/* Currency pill toggle */}
+          {/* Currency toggle */}
           <div className="flex items-center gap-1 bg-sand/60 rounded-full p-1 border border-sand-dark">
             <button
               onClick={() => setCurrency("MAD")}
@@ -115,7 +124,7 @@ export default function PricesPage() {
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.25 }}
           >
-            {/* AIRPORT */}
+            {/* ── AIRPORT ── */}
             {activeTab === "airport" && (
               <div>
                 <div className="flex flex-wrap gap-2 mb-6">
@@ -140,7 +149,7 @@ export default function PricesPage() {
                     <h3 className="font-bold text-charcoal">
                       {AIRPORTS.find((a) => a.code === activeAirport)?.fullName} — Transfer Prices
                     </h3>
-                    <p className="text-charcoal/40 text-xs mt-1">Per vehicle · All-inclusive · Economy prices shown</p>
+                    <p className="text-charcoal/40 text-xs mt-1">Per vehicle · All-inclusive (tolls, fuel, taxes) · Both directions same price</p>
                   </div>
 
                   <div className="overflow-x-auto">
@@ -148,39 +157,74 @@ export default function PricesPage() {
                       <thead>
                         <tr className="border-b border-sand/50 bg-sand/10">
                           <th className="text-left px-6 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider">Destination</th>
-                          {PRICE_COLUMNS.map((v) => (
-                            <th key={v} className="px-4 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[90px]">
-                              {VEHICLE_LABELS[v]}
+                          <th className="px-3 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center whitespace-nowrap">Time</th>
+                          {PRICE_COLUMNS.map((col) => (
+                            <th key={col.key} className={cn(
+                              "px-4 py-3 text-xs font-semibold uppercase tracking-wider text-center min-w-[100px] relative",
+                              col.main ? "text-terracotta" : "text-charcoal/40"
+                            )}>
+                              {col.main && (
+                                <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-full bg-terracotta text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap flex items-center gap-0.5">
+                                  <Star className="w-2.5 h-2.5 fill-white" /> Most Popular
+                                </span>
+                              )}
+                              {col.label}
                             </th>
                           ))}
+                          <th className="px-4 py-3"></th>
                         </tr>
                       </thead>
                       <tbody>
-                        {airportPrices.map((p, i) => (
-                          <tr key={p.destination} className={i < airportPrices.length - 1 ? "border-b border-sand/30" : ""}>
-                            <td className="px-6 py-4 font-semibold text-charcoal">{p.destination}</td>
-                            {PRICE_COLUMNS.map((v) => (
-                              <td key={v} className="px-4 py-4 text-center">
-                                <PriceBadge price={Math.round(p.priceEconomy * VEHICLE_MULTIPLIERS[v])} currency={currency} />
+                        {airportRoutes.map((route, i) => (
+                          <tr
+                            key={route.city}
+                            className={cn(
+                              i < airportRoutes.length - 1 ? "border-b border-sand/30" : "",
+                              "hover:bg-sand/20 transition-colors"
+                            )}
+                          >
+                            <td className="px-6 py-4 font-semibold text-charcoal">{route.city}</td>
+                            <td className="px-3 py-4 text-charcoal/40 text-center whitespace-nowrap">{route.duration}</td>
+                            {PRICE_COLUMNS.map((col) => (
+                              <td key={col.key} className={cn(
+                                "px-4 py-4 text-center",
+                                col.main && "bg-terracotta/5"
+                              )}>
+                                <PriceCell price={route.prices[col.key]} currency={currency} />
                               </td>
                             ))}
+                            <td className="px-4 py-4">
+                              <Link
+                                href="/book"
+                                onClick={() => updateFormData({ serviceType: "airport", airportCode: activeAirport, destinationAddress: route.city })}
+                                className="text-xs font-semibold text-white bg-terracotta hover:bg-terracotta-dark px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                              >
+                                Book
+                              </Link>
+                            </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 </div>
-                <p className="text-charcoal/40 text-xs mt-3 text-center">Select vehicle type at booking for exact quote · All prices per vehicle, all-inclusive</p>
+
+                <p className="text-charcoal/40 text-xs mt-3 text-center">
+                  Prices shown for Mercedes Vito (our main vehicle) ·{" "}
+                  Skoda Superb from {currency === "EUR" ? `€${(minSkoda / EUR_RATE).toFixed(0)}` : `${minSkoda.toLocaleString("fr-MA")} DH`}{" "}·{" "}
+                  Mercedes E-Class from {currency === "EUR" ? `€${(minEClass / EUR_RATE).toFixed(0)}` : `${minEClass.toLocaleString("fr-MA")} DH`}{" "}·{" "}
+                  Sprinter from {currency === "EUR" ? `€${(minSprinter / EUR_RATE).toFixed(0)}` : `${minSprinter.toLocaleString("fr-MA")} DH`}
+                </p>
               </div>
             )}
 
-            {/* CITY TO CITY */}
+            {/* ── CITY TO CITY ── */}
             {activeTab === "city" && (
               <div>
                 <div className="bg-white rounded-2xl shadow-card overflow-hidden">
                   <div className="px-6 py-4 border-b border-sand bg-sand/30">
                     <h3 className="font-bold text-charcoal">City to City Transfer Prices</h3>
-                    <p className="text-charcoal/40 text-xs mt-1">Per vehicle · Both directions same price</p>
+                    <p className="text-charcoal/40 text-xs mt-1">Per vehicle · Both directions same price · All-inclusive</p>
                   </div>
 
                   <div className="overflow-x-auto">
@@ -190,9 +234,17 @@ export default function PricesPage() {
                           <th className="text-left px-6 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider">Route</th>
                           <th className="px-3 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center whitespace-nowrap">km</th>
                           <th className="px-3 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center whitespace-nowrap">Time</th>
-                          {PRICE_COLUMNS.map((v) => (
-                            <th key={v} className="px-3 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[80px]">
-                              {VEHICLE_LABELS[v]}
+                          {PRICE_COLUMNS.map((col) => (
+                            <th key={col.key} className={cn(
+                              "px-3 py-3 text-xs font-semibold uppercase tracking-wider text-center min-w-[100px] relative",
+                              col.main ? "text-terracotta" : "text-charcoal/40"
+                            )}>
+                              {col.main && (
+                                <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 -translate-y-full bg-terracotta text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap flex items-center gap-0.5">
+                                  <Star className="w-2.5 h-2.5 fill-white" /> Most Popular
+                                </span>
+                              )}
+                              {col.label}
                             </th>
                           ))}
                           <th className="px-4 py-3"></th>
@@ -200,13 +252,22 @@ export default function PricesPage() {
                       </thead>
                       <tbody>
                         {CITY_ROUTES.map((route, i) => (
-                          <tr key={route.id} className={i < CITY_ROUTES.length - 1 ? "border-b border-sand/30" : ""}>
+                          <tr
+                            key={`${route.from}-${route.to}`}
+                            className={cn(
+                              i < CITY_ROUTES.length - 1 ? "border-b border-sand/30" : "",
+                              "hover:bg-sand/20 transition-colors"
+                            )}
+                          >
                             <td className="px-6 py-3 font-semibold text-charcoal whitespace-nowrap">{route.from} → {route.to}</td>
-                            <td className="px-3 py-3 text-charcoal/40 text-center">{route.distanceKm}</td>
-                            <td className="px-3 py-3 text-charcoal/40 text-center whitespace-nowrap">{route.durationText}</td>
-                            {PRICE_COLUMNS.map((v) => (
-                              <td key={v} className="px-3 py-3 text-center">
-                                <PriceBadge price={Math.round(route.priceEconomy * VEHICLE_MULTIPLIERS[v])} currency={currency} />
+                            <td className="px-3 py-3 text-charcoal/40 text-center">{route.distance}</td>
+                            <td className="px-3 py-3 text-charcoal/40 text-center whitespace-nowrap">{route.duration}</td>
+                            {PRICE_COLUMNS.map((col) => (
+                              <td key={col.key} className={cn(
+                                "px-3 py-3 text-center",
+                                col.main && "bg-terracotta/5"
+                              )}>
+                                <PriceCell price={route.prices[col.key]} currency={currency} />
                               </td>
                             ))}
                             <td className="px-4 py-3">
@@ -224,39 +285,64 @@ export default function PricesPage() {
                     </table>
                   </div>
                 </div>
-                <p className="text-charcoal/40 text-xs mt-3 text-center">Economy prices shown · Select vehicle at booking for exact quote · All prices per vehicle</p>
+
+                <p className="text-charcoal/40 text-xs mt-3 text-center">
+                  Prices shown for Mercedes Vito (our main vehicle) · Skoda Superb from {currency === "EUR" ? `€${(700 / EUR_RATE).toFixed(0)}` : "700 DH"} · Mercedes E-Class from {currency === "EUR" ? `€${(1250 / EUR_RATE).toFixed(0)}` : "1,250 DH"} · Sprinter from {currency === "EUR" ? `€${(1550 / EUR_RATE).toFixed(0)}` : "1,550 DH"}
+                </p>
               </div>
             )}
 
-            {/* DAY HIRE */}
+            {/* ── DAY HIRE ── */}
             {activeTab === "dayhire" && (
               <div className="space-y-4">
                 <div className="bg-white rounded-2xl shadow-card overflow-hidden">
                   <div className="px-6 py-4 border-b border-sand bg-sand/30">
                     <h3 className="font-bold text-charcoal">Private Day Hire Prices</h3>
-                    <p className="text-charcoal/40 text-xs mt-1">Per vehicle per day · Driver & fuel included</p>
+                    <p className="text-charcoal/40 text-xs mt-1">Per vehicle per day · Driver & fuel included · All-inclusive</p>
                   </div>
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="border-b border-sand/50 bg-sand/10">
                           <th className="text-left px-6 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider">Vehicle</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[110px]">Half Day (5h)</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[110px]">Full Day (10h)</th>
-                          <th className="px-4 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[90px]">Extra Hour</th>
+                          <th className="px-4 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[120px]">Half Day (5h)</th>
+                          <th className="px-4 py-3 text-xs font-semibold text-charcoal/40 uppercase tracking-wider text-center min-w-[120px]">Full Day (10h)</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {DAY_HIRE_PRICES.map((p, i) => (
-                          <tr key={p.vehicle} className={i < DAY_HIRE_PRICES.length - 1 ? "border-b border-sand/30" : ""}>
-                            <td className="px-6 py-4">
-                              <p className="font-semibold text-charcoal capitalize">{VEHICLE_LABELS[p.vehicle] ?? p.vehicle}</p>
-                            </td>
-                            <td className="px-4 py-4 text-center"><PriceBadge price={p.halfDay} currency={currency} /></td>
-                            <td className="px-4 py-4 text-center"><PriceBadge price={p.fullDay} currency={currency} /></td>
-                            <td className="px-4 py-4 text-center"><PriceBadge price={p.extraHour} currency={currency} /></td>
-                          </tr>
-                        ))}
+                        {(["skoda", "mercedes-e", "vito", "sprinter"] as VehicleType[]).map((v, i, arr) => {
+                          const rates = DAY_HIRE_RATES[v];
+                          const isMain = v === "vito";
+                          const labels: Record<VehicleType, string> = {
+                            skoda: "Skoda Superb",
+                            "mercedes-e": "Mercedes E-Class",
+                            vito: "Mercedes Vito",
+                            sprinter: "Mercedes Sprinter",
+                          };
+                          return (
+                            <tr key={v} className={cn(
+                              i < arr.length - 1 ? "border-b border-sand/30" : "",
+                              isMain && "bg-terracotta/5"
+                            )}>
+                              <td className="px-6 py-4">
+                                <div className="flex items-center gap-2">
+                                  <p className="font-semibold text-charcoal">{labels[v]}</p>
+                                  {isMain && (
+                                    <span className="flex items-center gap-0.5 bg-terracotta text-white text-[9px] font-bold px-2 py-0.5 rounded-full">
+                                      <Star className="w-2.5 h-2.5 fill-white" /> Main
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                <PriceCell price={rates.halfDay} currency={currency} />
+                              </td>
+                              <td className="px-4 py-4 text-center">
+                                <PriceCell price={rates.fullDay} currency={currency} />
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -278,6 +364,10 @@ export default function PricesPage() {
                     </div>
                   </div>
                 </div>
+
+                <p className="text-charcoal/40 text-xs mt-1 text-center">
+                  Prices shown for Mercedes Vito (our main vehicle) · Skoda Superb half day from {currency === "EUR" ? `€${(1200 / EUR_RATE).toFixed(0)}` : "1,200 DH"} · Sprinter from {currency === "EUR" ? `€${(2000 / EUR_RATE).toFixed(0)}` : "2,000 DH"}
+                </p>
               </div>
             )}
           </motion.div>

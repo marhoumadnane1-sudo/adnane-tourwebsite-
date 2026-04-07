@@ -28,6 +28,13 @@ const defaultFormData: Partial<BookingFormData> = {
   paymentMethod: "on-arrival",
 };
 
+function applyLangToDOM(lang: Lang) {
+  if (typeof document === "undefined") return;
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.cookie = `mt-lang=${lang}; path=/; max-age=31536000`;
+}
+
 export const useBookingStore = create<BookingStore>()(
   persist(
     (set) => ({
@@ -43,12 +50,8 @@ export const useBookingStore = create<BookingStore>()(
         set((state) => ({ formData: { ...state.formData, ...data } })),
       setCalculatedPrice: (price) => set({ calculatedPrice: price }),
       setCurrency: (currency) => set({ currency }),
-      setLanguage: (lang) => {
-        if (typeof document !== "undefined") {
-          document.cookie = `mt-lang=${lang}; path=/; max-age=31536000`;
-          document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-          document.documentElement.lang = lang;
-        }
+      setLanguage: (lang: Lang) => {
+        applyLangToDOM(lang);
         set({ language: lang });
       },
       resetBooking: () =>
@@ -62,6 +65,9 @@ export const useBookingStore = create<BookingStore>()(
         currency: state.currency,
         language: state.language,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) applyLangToDOM(state.language);
+      },
     }
   )
 );

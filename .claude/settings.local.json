@@ -10,7 +10,11 @@
       "WebFetch(domain:share.google)",
       "WebFetch(domain:www.google.com)",
       "Bash(gh auth:*)",
-      "Bash(where gh:*)"
+      "Bash(where gh:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

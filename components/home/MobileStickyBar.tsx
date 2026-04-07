@@ -11,7 +11,7 @@ export function MobileStickyBar() {
   const { currency } = useBookingStore();
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const priceFrom = currency === "EUR" ? `€${(300 / EUR_RATE).toFixed(0)}` : "300 DH";
+  const priceFrom = currency === "EUR" ? `€${(400 / EUR_RATE).toFixed(0)}` : "400 DH";
 
   useEffect(() => {
     // Create a sentinel element at the bottom of the hero section

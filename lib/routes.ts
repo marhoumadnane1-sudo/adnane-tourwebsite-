@@ -70,6 +70,19 @@ export const DAY_TRIP_ITINERARIES = [
   },
 ];
 
+// ─── POPULAR ROUTES (Vito prices — main vehicle) ─────────────────────────────
+
+export const POPULAR_ROUTES = [
+  { from: 'CMN Airport', to: 'Casablanca',  price: 400,  duration: '40 min', serviceType: 'airport' as const },
+  { from: 'Casablanca',  to: 'Marrakech',   price: 1500, duration: '3h 00',  serviceType: 'city'    as const },
+  { from: 'CMN Airport', to: 'Marrakech',   price: 1500, duration: '3h 00',  serviceType: 'airport' as const },
+  { from: 'Casablanca',  to: 'Agadir',      price: 3500, duration: '5h 00',  serviceType: 'city'    as const },
+  { from: 'CMN Airport', to: 'Rabat',       price: 1000, duration: '1h 15',  serviceType: 'airport' as const },
+  { from: 'Casablanca',  to: 'Essaouira',   price: 3000, duration: '4h 30',  serviceType: 'city'    as const },
+  { from: 'Casablanca',  to: 'Fez',         price: 2000, duration: '3h 30',  serviceType: 'city'    as const },
+  { from: 'CMN Airport', to: 'Tangier',     price: 2700, duration: '3h 30',  serviceType: 'airport' as const },
+];
+
 export const CONTACT = {
   phone: '+212 661 659 607',
   whatsapp: '212661659607',

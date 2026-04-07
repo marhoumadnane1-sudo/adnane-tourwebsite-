@@ -3,14 +3,14 @@
 import { useRef } from "react";
 import { motion, useInView } from "framer-motion";
 import { Search, Car, CheckCircle } from "lucide-react";
+import { useTranslation } from "@/hooks/useTranslation";
 
-const steps = [
+const stepConfig = [
   {
     number: "01",
     icon: Search,
-    title: "Choose Your Service",
-    description:
-      "Select airport transfer, city-to-city, or day hire. Enter your route, date, and number of passengers.",
+    titleKey: "step1Title",
+    descKey: "step1Desc",
     iconBg: "bg-terracotta/10",
     iconColor: "text-terracotta",
     ringColor: "rgba(181,69,27,0.3)",
@@ -18,9 +18,8 @@ const steps = [
   {
     number: "02",
     icon: Car,
-    title: "Pick Your Vehicle",
-    description:
-      "Choose from Economy, Comfort, Minivan, or Sprinter. Your fixed all-inclusive price is shown instantly.",
+    titleKey: "step2Title",
+    descKey: "step2Desc",
     iconBg: "bg-gold/15",
     iconColor: "text-yellow-700",
     ringColor: "rgba(212,168,67,0.3)",
@@ -28,16 +27,15 @@ const steps = [
   {
     number: "03",
     icon: CheckCircle,
-    title: "Driver Meets You",
-    description:
-      "Your professional driver arrives on time. Pay on arrival or online. No hidden fees, ever.",
+    titleKey: "step3Title",
+    descKey: "step3Desc",
     iconBg: "bg-green-100",
     iconColor: "text-green-700",
     ringColor: "rgba(34,197,94,0.3)",
   },
 ];
 
-function StepCard({ step, index }: { step: (typeof steps)[0]; index: number }) {
+function StepCard({ step, index, title, description }: { step: (typeof stepConfig)[0]; index: number; title: string; description: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   const Icon = step.icon;
@@ -90,10 +88,10 @@ function StepCard({ step, index }: { step: (typeof steps)[0]; index: number }) {
         </motion.div>
       </div>
 
-      <h3 className="text-lg font-bold text-charcoal mb-3">{step.title}</h3>
-      <p className="text-sm text-charcoal/55 leading-relaxed">{step.description}</p>
+      <h3 className="text-lg font-bold text-charcoal mb-3">{title}</h3>
+      <p className="text-sm text-charcoal/55 leading-relaxed">{description}</p>
 
-      {index < steps.length - 1 && (
+      {index < stepConfig.length - 1 && (
         <div className="md:hidden w-px h-8 bg-terracotta/20 mx-auto mt-6" />
       )}
     </motion.div>
@@ -103,6 +101,13 @@ function StepCard({ step, index }: { step: (typeof steps)[0]; index: number }) {
 export function HowItWorks() {
   const lineRef = useRef<HTMLDivElement>(null);
   const lineInView = useInView(lineRef, { once: true, margin: "-80px" });
+  const { t } = useTranslation();
+
+  const steps = stepConfig.map((s) => ({
+    ...s,
+    title: t("howItWorks", s.titleKey),
+    description: t("howItWorks", s.descKey),
+  }));
 
   return (
     <section className="py-20 sm:py-28 bg-white" id="how-it-works">
@@ -117,12 +122,12 @@ export function HowItWorks() {
         >
           <span className="inline-flex items-center gap-2 text-terracotta text-sm font-semibold uppercase tracking-widest mb-3">
             <span className="w-6 h-px bg-terracotta" />
-            Simple Process
+            {t("howItWorks", "tag")}
             <span className="w-6 h-px bg-terracotta" />
           </span>
-          <h2 className="section-title mb-4">How It Works</h2>
+          <h2 className="section-title mb-4">{t("howItWorks", "title")}</h2>
           <p className="section-subtitle">
-            Book your transfer in under 2 minutes. No account required.
+            {t("howItWorks", "subtitle")}
           </p>
         </motion.div>
 
@@ -145,7 +150,7 @@ export function HowItWorks() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-10 items-start">
             {steps.map((step, i) => (
-              <StepCard key={step.number} step={step} index={i} />
+              <StepCard key={step.number} step={step} index={i} title={step.title} description={step.description} />
             ))}
           </div>
         </div>
