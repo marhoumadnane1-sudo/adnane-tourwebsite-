@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
@@ -35,13 +34,9 @@ export const metadata: Metadata = {
   themeColor: "#B5451B",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const cookieStore = await cookies();
-  const lang = (cookieStore.get("mt-lang")?.value ?? "en") as "en" | "fr" | "ar";
-  const dir = lang === "ar" ? "rtl" : "ltr";
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang={lang} dir={dir} suppressHydrationWarning className="scroll-smooth">
+    <html lang="en" dir="ltr" suppressHydrationWarning className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -79,7 +74,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body
         className="min-h-screen bg-cream antialiased"
-        style={{ fontFamily: lang === "ar" ? "'Noto Sans Arabic', sans-serif" : "'Plus Jakarta Sans', Inter, sans-serif" }}
         suppressHydrationWarning
       >
         <LanguageDirectionSync />
