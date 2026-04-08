@@ -1,15 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, CreditCard, Banknote, MapPin, Calendar, Users, Car } from "lucide-react";
+import { ArrowLeft, CreditCard, Banknote, MapPin, Calendar, Users, Car, AlertCircle } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
 import { VEHICLES, EUR_RATE } from "@/lib/prices";
 import { formatDate } from "@/lib/utils";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
+import { PayPalButton } from "./PayPalButton";
 import AddressInput from "@/components/ui/AddressInput";
 
 const schema = z.object({
@@ -109,8 +111,10 @@ interface BookingDetailsProps {
 }
 
 export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
-  const { formData, updateFormData } = useBookingStore();
+  const { formData, updateFormData, calculatedPrice } = useBookingStore();
   const { t } = useTranslation();
+  const [showPayPal, setShowPayPal] = useState(false);
+  const [paypalError, setPaypalError] = useState<string | null>(null);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -132,6 +136,15 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
   function onFormSubmit(values: FormValues) {
     const { agreePolicy: _, ...rest } = values;
     updateFormData(rest as any);
+    if (values.paymentMethod === "online") {
+      setShowPayPal(true);
+    } else {
+      onSubmit();
+    }
+  }
+
+  function handlePayPalSuccess(orderId: string) {
+    updateFormData({ paypalOrderId: orderId } as any);
     onSubmit();
   }
 
@@ -198,7 +211,7 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { value: "on-arrival", icon: Banknote, label: t("booking", "payOnArrival"), desc: "Cash or card when driver arrives" },
-              { value: "online", icon: CreditCard, label: t("booking", "payOnline"), desc: "Secure payment via Stripe" },
+              { value: "online", icon: CreditCard, label: t("booking", "payOnline"), desc: "Secure payment via PayPal" },
             ].map((opt) => {
               const Icon = opt.icon;
               const isSelected = paymentMethod === opt.value;
@@ -263,6 +276,53 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
           </Link>
         </p>
       </form>
+
+      {/* PayPal payment overlay */}
+      {showPayPal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm">
+            <h3 className="font-bold text-charcoal text-lg mb-1 text-center">Complete Payment</h3>
+            <p className="text-charcoal/50 text-sm text-center mb-5">
+              Pay securely with PayPal to confirm your booking
+            </p>
+
+            {calculatedPrice && (
+              <div className="bg-sand/50 rounded-xl p-4 mb-5 text-center">
+                <p className="text-xs text-charcoal/40 uppercase tracking-wider mb-1">Total</p>
+                <p className="text-2xl font-bold text-terracotta">
+                  €{(calculatedPrice / EUR_RATE).toFixed(0)}
+                </p>
+                <p className="text-xs text-charcoal/30 mt-1">
+                  {calculatedPrice.toLocaleString("fr-MA")} DH · all inclusive
+                </p>
+              </div>
+            )}
+
+            {paypalError && (
+              <div className="flex items-center gap-2 bg-red-50 text-red-600 rounded-xl p-3 mb-4 text-sm">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{paypalError}</span>
+              </div>
+            )}
+
+            {calculatedPrice && (
+              <PayPalButton
+                amountMAD={calculatedPrice}
+                onSuccess={handlePayPalSuccess}
+                onError={() => setPaypalError("Payment failed. Please try again or choose Pay on Arrival.")}
+              />
+            )}
+
+            <button
+              type="button"
+              onClick={() => { setShowPayPal(false); setPaypalError(null); }}
+              className="mt-4 w-full text-center text-sm text-charcoal/40 hover:text-charcoal transition-colors"
+            >
+              Cancel — go back
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="lg:col-span-2">
         <OrderSummary />

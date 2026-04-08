@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { StepIndicator } from "@/components/booking/StepIndicator";
 import { RouteSelector } from "@/components/booking/RouteSelector";
 import { VehicleSelector } from "@/components/booking/VehicleSelector";
@@ -104,12 +105,20 @@ function BookingContent() {
 
 export default function BookPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-sand/30 pt-24 pb-16 flex items-center justify-center">
-        <div className="text-charcoal/40">Loading booking form...</div>
-      </div>
-    }>
-      <BookingContent />
-    </Suspense>
+    <PayPalScriptProvider
+      options={{
+        clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? "test",
+        currency: "EUR",
+        intent: "capture",
+      }}
+    >
+      <Suspense fallback={
+        <div className="min-h-screen bg-sand/30 pt-24 pb-16 flex items-center justify-center">
+          <div className="text-charcoal/40">Loading booking form...</div>
+        </div>
+      }>
+        <BookingContent />
+      </Suspense>
+    </PayPalScriptProvider>
   );
 }
