@@ -21,7 +21,7 @@ const pageVariants = {
 };
 
 function BookingContent() {
-  const { step, setStep, nextStep, prevStep, updateFormData } = useBookingStore();
+  const { step, setStep, nextStep, prevStep, updateFormData, formData, calculatedPrice, currency } = useBookingStore();
   const [bookingRef, setBookingRef] = useState<string | null>(null);
   const searchParams = useSearchParams();
   const { t } = useTranslation();
@@ -42,8 +42,19 @@ function BookingContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function handleSubmit() {
-    setBookingRef(generateBookingRef());
+  async function handleSubmit() {
+    const ref = generateBookingRef();
+    setBookingRef(ref);
+    // Fire-and-forget email confirmation — booking succeeds even if email fails
+    try {
+      await fetch("/api/booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingRef: ref, formData, calculatedPrice, currency }),
+      });
+    } catch (err) {
+      console.error("Booking notification failed:", err);
+    }
   }
 
   return (

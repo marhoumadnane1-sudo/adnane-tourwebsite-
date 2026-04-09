@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
 import { EUR_RATE } from "@/lib/prices";
@@ -9,26 +10,32 @@ import { EUR_RATE } from "@/lib/prices";
 export function MobileStickyBar() {
   const [visible, setVisible] = useState(false);
   const { currency } = useBookingStore();
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const pathname = usePathname();
 
   const priceFrom = currency === "EUR" ? `€${(400 / EUR_RATE).toFixed(0)}` : "400 DH";
 
   useEffect(() => {
-    // Create a sentinel element at the bottom of the hero section
     const sentinel = document.getElementById("hero-sentinel");
-    if (!sentinel) return;
 
+    if (!sentinel) {
+      // Not on home page — show after user scrolls 80 px past the navbar
+      const handleScroll = () => setVisible(window.scrollY > 80);
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      handleScroll(); // run once on mount
+      return () => window.removeEventListener("scroll", handleScroll);
+    }
+
+    // Home page — show when the hero sentinel exits the viewport
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Show bar when hero sentinel is NOT visible (user scrolled past hero)
-        setVisible(!entry.isIntersecting);
-      },
+      ([entry]) => setVisible(!entry.isIntersecting),
       { threshold: 0 }
     );
-
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
+
+  // Never show on the booking page itself — user is already there
+  if (pathname === "/book") return null;
 
   return (
     <div
@@ -50,8 +57,8 @@ export function MobileStickyBar() {
           Book Now <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
-      {/* Safe area padding for iOS */}
-      <div className="bg-white h-safe-bottom" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
+      {/* iOS safe area */}
+      <div className="bg-white" style={{ paddingBottom: "env(safe-area-inset-bottom)" }} />
     </div>
   );
 }

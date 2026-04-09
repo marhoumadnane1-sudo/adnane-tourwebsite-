@@ -8,7 +8,6 @@ import { Fleet } from "@/components/home/Fleet";
 import { Testimonials } from "@/components/home/Testimonials";
 import { FAQ } from "@/components/home/FAQ";
 import { Team } from "@/components/home/Team";
-import { MobileStickyBar } from "@/components/home/MobileStickyBar";
 
 export const metadata: Metadata = {
   title: "NIGOR 2Transport — Private Transfers Across Morocco",
@@ -28,7 +27,6 @@ export default function HomePage() {
       <Testimonials />
       <Team />
       <FAQ />
-      <MobileStickyBar />
     </>
   );
 }

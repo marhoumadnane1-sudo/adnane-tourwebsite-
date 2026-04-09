@@ -1,13 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plane, MapPin, Car, Minus, Plus } from "lucide-react";
+import { Plane, MapPin, Car, Minus, Plus, Tag } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
 import { AIRPORTS, CITIES } from "@/lib/routes";
+import {
+  AIRPORT_TRANSFERS,
+  calculateAirportPrice,
+  calculateCityPrice,
+  getDayHirePrice,
+  EUR_RATE,
+} from "@/lib/prices";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import type { ServiceType, AirportCode } from "@/lib/types";
@@ -27,8 +34,13 @@ const schema = z.object({
   passengers: z.number().min(1).max(14),
   luggage: z.number().min(0).max(20),
 }).superRefine((data, ctx) => {
-  if (data.serviceType === "airport" && !data.airportCode) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["airportCode"], message: "Please select an airport" });
+  if (data.serviceType === "airport") {
+    if (!data.airportCode) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["airportCode"], message: "Please select an airport" });
+    }
+    if (!data.destinationAddress) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["destinationAddress"], message: "Please select your destination city" });
+    }
   }
   if (data.serviceType === "city-to-city" && !data.fromCity) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["fromCity"], message: "Please select departure city" });
@@ -48,7 +60,7 @@ interface RouteSelectorProps {
 }
 
 export function RouteSelector({ onNext }: RouteSelectorProps) {
-  const { formData, updateFormData } = useBookingStore();
+  const { formData, updateFormData, currency } = useBookingStore();
   const { t, isRTL } = useTranslation();
   const today = new Date().toISOString().split("T")[0];
 
@@ -74,18 +86,48 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
     },
   });
 
-  const serviceType = watch("serviceType");
-  const passengers = watch("passengers");
-  const luggage = watch("luggage");
+  const serviceType    = watch("serviceType");
+  const passengers     = watch("passengers");
+  const luggage        = watch("luggage");
+  const airportCode    = watch("airportCode");
   const destinationAddress = watch("destinationAddress");
-  const fromCity = watch("fromCity");
-  const toCity = watch("toCity");
+  const fromCity       = watch("fromCity");
+  const toCity         = watch("toCity");
+  const dayHireDuration = watch("dayHireDuration");
+
+  // Cities available for the selected airport
+  const airportCities = useMemo(
+    () => (airportCode ? (AIRPORT_TRANSFERS[airportCode] ?? []).map((r) => r.city) : []),
+    [airportCode]
+  );
+
+  // ── Live price preview (Vito = default recommended vehicle) ────────────────
+  const previewPrice = useMemo<number | null>(() => {
+    if (serviceType === "airport" && airportCode && destinationAddress) {
+      const p = calculateAirportPrice(airportCode, destinationAddress, "vito");
+      return p > 0 ? p : null;
+    }
+    if (serviceType === "city-to-city" && fromCity && toCity) {
+      const p = calculateCityPrice(fromCity, toCity, "vito");
+      return p > 0 ? p : null;
+    }
+    if (serviceType === "day-hire") {
+      const p = getDayHirePrice("vito", dayHireDuration ?? "full-day");
+      return p > 0 ? p : null;
+    }
+    return null;
+  }, [serviceType, airportCode, destinationAddress, fromCity, toCity, dayHireDuration]);
+
+  function formatPreviewPrice(amount: number) {
+    if (currency === "EUR") return `€${(amount / EUR_RATE).toFixed(0)}`;
+    return `${amount.toLocaleString("fr-MA")} DH`;
+  }
 
   function handleServiceChange(type: ServiceType) {
     setValue("serviceType", type);
-    if (type !== "airport") { setValue("airportCode", ""); setValue("destinationAddress", ""); }
+    if (type !== "airport")      { setValue("airportCode", ""); setValue("destinationAddress", ""); }
     if (type !== "city-to-city") { setValue("fromCity", ""); setValue("toCity", ""); }
-    if (type !== "day-hire") { setValue("baseCity", ""); }
+    if (type !== "day-hire")     { setValue("baseCity", ""); }
     setPickupAddress("");
     setDropoffAddress("");
   }
@@ -96,14 +138,15 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
   }
 
   const serviceOptions = [
-    { id: "airport" as ServiceType, icon: Plane, label: t("booking", "airportTransfer"), desc: "Arrive or depart from Casablanca Mohammed V Airport" },
-    { id: "city-to-city" as ServiceType, icon: MapPin, label: t("booking", "cityToCity"), desc: "Direct ride from Casablanca to any city" },
-    { id: "day-hire" as ServiceType, icon: Car, label: t("booking", "dayHire"), desc: "Your own driver for a half or full day" },
+    { id: "airport" as ServiceType,      icon: Plane,  label: t("booking", "airportTransfer"), desc: "Arrive or depart from Casablanca Mohammed V Airport" },
+    { id: "city-to-city" as ServiceType, icon: MapPin, label: t("booking", "cityToCity"),      desc: "Direct ride between any two cities" },
+    { id: "day-hire" as ServiceType,     icon: Car,    label: t("booking", "dayHire"),          desc: "Your own driver for a half or full day" },
   ];
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-7" dir={isRTL ? "rtl" : "ltr"}>
-      {/* Service Type */}
+
+      {/* ── Service Type ──────────────────────────────────────────────────────── */}
       <div>
         <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-3">
           {t("booking", "serviceType")}
@@ -137,7 +180,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
         </div>
       </div>
 
-      {/* Dynamic route fields */}
+      {/* ── Dynamic Route Fields ──────────────────────────────────────────────── */}
       <AnimatePresence mode="wait">
         <motion.div
           key={serviceType}
@@ -147,19 +190,30 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
           transition={{ duration: 0.2 }}
           className="space-y-4"
         >
+          {/* ── AIRPORT ────────────────────────────────────────────────────────── */}
           {serviceType === "airport" && (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Airport select */}
                 <div>
                   <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">Airport</label>
-                  <select {...register("airportCode")} className="input-field">
+                  <select
+                    {...register("airportCode")}
+                    onChange={(e) => {
+                      setValue("airportCode", e.target.value as AirportCode);
+                      setValue("destinationAddress", ""); // reset city when airport changes
+                    }}
+                    className="input-field"
+                  >
                     <option value="">Select airport...</option>
                     {AIRPORTS.map((a) => (
-                      <option key={a.code} value={a.code}>{a.code} — {a.name}, {a.city}</option>
+                      <option key={a.code} value={a.code}>{a.code} — {a.name}</option>
                     ))}
                   </select>
                   {errors.airportCode && <p className="text-red-500 text-xs mt-1">{errors.airportCode.message}</p>}
                 </div>
+
+                {/* Direction */}
                 <div>
                   <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
                     {t("booking", "direction")}
@@ -170,15 +224,40 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
                   </select>
                 </div>
               </div>
+
+              {/* Destination city — clean select, no fuzzy match needed */}
+              <div>
+                <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
+                  Destination City *
+                </label>
+                <select
+                  {...register("destinationAddress")}
+                  className="input-field"
+                  disabled={!airportCode}
+                >
+                  <option value="">
+                    {airportCode ? "Select your destination city..." : "Select airport first"}
+                  </option>
+                  {airportCities.map((city) => (
+                    <option key={city} value={city}>{city}</option>
+                  ))}
+                </select>
+                {errors.destinationAddress && (
+                  <p className="text-red-500 text-xs mt-1">{errors.destinationAddress.message}</p>
+                )}
+              </div>
+
+              {/* Hotel / drop-off address — for driver, stored separately */}
               <AddressInput
-                label={t("booking", "hotel")}
-                placeholder="Hotel name, address, or paste Google Maps link..."
-                value={destinationAddress ?? ""}
-                onChange={(val) => setValue("destinationAddress", val)}
+                label="Hotel or Drop-off Address"
+                placeholder="Hotel name, riad, or paste Google Maps link..."
+                value={pickupAddress}
+                onChange={setPickupAddress}
               />
             </>
           )}
 
+          {/* ── CITY TO CITY ──────────────────────────────────────────────────── */}
           {serviceType === "city-to-city" && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -214,6 +293,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
             </div>
           )}
 
+          {/* ── DAY HIRE ──────────────────────────────────────────────────────── */}
           {serviceType === "day-hire" && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -246,7 +326,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
         </motion.div>
       </AnimatePresence>
 
-      {/* Date & Time */}
+      {/* ── Date & Time ───────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
@@ -258,13 +338,14 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
             {t("booking", "time")}
+            <span className="ml-1 text-charcoal/30 normal-case font-normal">(local Morocco time)</span>
           </label>
           <input type="time" {...register("time")} className="input-field" />
           {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time.message}</p>}
         </div>
       </div>
 
-      {/* Passengers & Luggage */}
+      {/* ── Passengers & Luggage ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
@@ -299,6 +380,36 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
           </div>
         </div>
       </div>
+
+      {/* ── Live Price Preview ────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {previewPrice !== null && (
+          <motion.div
+            key="price-preview"
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+            className="bg-terracotta/5 border border-terracotta/20 rounded-2xl p-4 flex items-center justify-between gap-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-terracotta/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Tag className="w-4 h-4 text-terracotta" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider">Estimated price — Mercedes Vito</p>
+                <p className="text-xs text-charcoal/40 mt-0.5">All-inclusive · Per vehicle · Fixed price — choose vehicle on next step</p>
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <p className="text-2xl font-bold text-terracotta">{formatPreviewPrice(previewPrice)}</p>
+              {currency === "MAD" && (
+                <p className="text-xs text-charcoal/30">≈ €{(previewPrice / EUR_RATE).toFixed(0)}</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <button type="submit" className="btn-primary w-full py-4 text-base">
         {t("booking", "next")} — {t("booking", "step2")}

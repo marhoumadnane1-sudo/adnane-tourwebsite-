@@ -12,7 +12,6 @@ import {
   getDayHirePrice,
   EUR_RATE,
   getRecommendedVehicle,
-  AIRPORT_TRANSFERS,
 } from "@/lib/prices";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
@@ -28,14 +27,11 @@ function getPriceForFormData(formData: any, vehicleType: VehicleType): number {
   const service = formData.serviceType;
 
   if (service === "airport") {
-    // Fuzzy-match the free-text destinationAddress against city names
-    const routes = AIRPORT_TRANSFERS[formData.airportCode ?? "CMN"] || [];
-    const dest = (formData.destinationAddress ?? "").toLowerCase().trim();
-    const match = routes.find((r) => {
-      const city = r.city.toLowerCase();
-      return dest.includes(city) || city.includes(dest.split(",")[0].trim());
-    });
-    return match ? (match.prices[vehicleType] ?? 0) : 0;
+    return calculateAirportPrice(
+      formData.airportCode ?? "CMN",
+      formData.destinationAddress ?? "",
+      vehicleType
+    );
   }
 
   if (service === "city-to-city") {
@@ -50,7 +46,8 @@ function getPriceForFormData(formData: any, vehicleType: VehicleType): number {
 }
 
 function hasValidRoute(formData: any): boolean {
-  if (formData.serviceType === "airport") return !!formData.airportCode;
+  if (formData.serviceType === "airport")
+    return !!formData.airportCode && !!formData.destinationAddress;
   if (formData.serviceType === "city-to-city") {
     return calculateCityPrice(formData.fromCity ?? "", formData.toCity ?? "") > 0;
   }
