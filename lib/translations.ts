@@ -93,6 +93,7 @@ export const translations = {
       disclaimer: 'All prices are per vehicle — not per person. Fixed price includes tolls, fuel, and taxes. No hidden fees.',
       services: 'Services', airports: 'Airports', routes: 'Popular Routes',
       rights: 'All rights reserved.', licensed: 'Licensed Tourist Transport Morocco',
+      policies: 'Policies & Terms',
     },
     contact: {
       title: 'Contact Us',
@@ -218,6 +219,7 @@ export const translations = {
       disclaimer: 'Tous les prix sont par véhicule — pas par personne. Prix fixe comprenant péages, carburant et taxes.',
       services: 'Services', airports: 'Aéroports', routes: 'Trajets Populaires',
       rights: 'Tous droits réservés.', licensed: 'Transport Touristique Agréé au Maroc',
+      policies: 'Politiques & CGV',
     },
     contact: {
       title: 'Contactez-nous',
@@ -343,6 +345,7 @@ export const translations = {
       disclaimer: 'جميع الأسعار للسيارة — وليس للشخص. السعر الثابت يشمل الرسوم والوقود والضرائب.',
       services: 'الخدمات', airports: 'المطارات', routes: 'المسارات الشائعة',
       rights: 'جميع الحقوق محفوظة.', licensed: 'نقل سياحي مرخص في المغرب',
+      policies: 'السياسات والشروط',
     },
     contact: {
       title: 'اتصل بنا',

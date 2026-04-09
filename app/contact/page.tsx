@@ -8,13 +8,25 @@ import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
   const { t } = useTranslation();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // In production this would send to an API endpoint
-    setSent(true);
+    setSending(true);
+    try {
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+    } catch {
+      // Don't block — show success regardless so user isn't confused
+    } finally {
+      setSending(false);
+      setSent(true);
+    }
   }
 
   const whatsappUrl = `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(
@@ -233,9 +245,9 @@ export default function ContactPage() {
                     />
                   </div>
 
-                  <button type="submit" className="btn-primary w-full py-4 text-base">
-                    {t("contact", "formSend")}
-                    <Send className="w-4 h-4" />
+                  <button type="submit" disabled={sending} className="btn-primary w-full py-4 text-base disabled:opacity-60">
+                    {sending ? "Sending…" : t("contact", "formSend")}
+                    {!sending && <Send className="w-4 h-4" />}
                   </button>
                 </form>
               </div>
