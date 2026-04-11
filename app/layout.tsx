@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LanguageDirectionSync } from "@/components/layout/LanguageDirectionSync";
 import { MobileStickyBar } from "@/components/home/MobileStickyBar";
+import { CookieBanner } from "@/components/ui/CookieBanner";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nigor2transport.ma"),
@@ -42,7 +43,7 @@ export const metadata: Metadata = {
         url: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1200&q=80",
         width: 1200,
         height: 630,
-        alt: "NIGOR 2Transport Morocco",
+        alt: "NIGOR 2Transport Morocco — Private Transfer Service",
       },
     ],
   },
@@ -50,6 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "NIGOR 2Transport — Private Transfers Morocco",
     description: "Licensed private transfers across Morocco. Fixed prices, 24/7.",
+    images: ["https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1200&q=80"],
   },
   robots: {
     index: true,
@@ -60,8 +62,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const headersList = headers();
-  const pathname = headersList.get('x-pathname') ?? '/';
-  const isAdmin = pathname.startsWith('/admin');
+  const pathname = headersList.get("x-pathname") ?? "/";
+  const isAdmin = pathname.startsWith("/admin");
 
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning className="scroll-smooth">
@@ -102,12 +104,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen bg-cream antialiased" suppressHydrationWarning>
+        {/* Skip-to-content link for keyboard / screen-reader users */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-terracotta focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold focus:shadow-lg focus:outline-none transition-all"
+        >
+          Skip to main content
+        </a>
+
         <LanguageDirectionSync />
         {!isAdmin && <Navbar />}
-        <main>{children}</main>
+
+        <main id="main-content">{children}</main>
+
         {!isAdmin && <Footer />}
         {!isAdmin && <WhatsAppButton />}
         {!isAdmin && <MobileStickyBar />}
+        {!isAdmin && <CookieBanner />}
       </body>
     </html>
   );
