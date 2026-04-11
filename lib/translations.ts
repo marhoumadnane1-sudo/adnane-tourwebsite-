@@ -123,6 +123,13 @@ export const translations = {
       ctaSubtitle: 'Join thousands of satisfied travelers who chose NIGOR 2Transport for their Morocco journey.',
       ctaBook: 'Book Your Transfer',
     },
+    cookieBanner: {
+      title: 'We use cookies',
+      description: 'We use anonymous analytics cookies to understand how visitors use our site and improve the booking experience. No personal data is sold or shared.',
+      accept: 'Accept',
+      decline: 'Decline',
+      learnMore: 'Privacy Policy',
+    },
   },
 
   fr: {
@@ -249,6 +256,13 @@ export const translations = {
       ctaSubtitle: 'Rejoignez des milliers de voyageurs satisfaits qui ont choisi NIGOR 2Transport.',
       ctaBook: 'Réserver votre Transfert',
     },
+    cookieBanner: {
+      title: 'Nous utilisons des cookies',
+      description: "Nous utilisons des cookies analytiques anonymes pour comprendre comment les visiteurs utilisent notre site et améliorer l'expérience de réservation. Aucune donnée personnelle n'est vendue.",
+      accept: 'Accepter',
+      decline: 'Refuser',
+      learnMore: 'Politique de confidentialité',
+    },
   },
 
   ar: {
@@ -374,6 +388,13 @@ export const translations = {
       ctaTitle: 'مستعد للسفر معنا؟',
       ctaSubtitle: 'انضم إلى آلاف المسافرين الراضين الذين اختاروا NIGOR 2Transport.',
       ctaBook: 'احجز نقلك',
+    },
+    cookieBanner: {
+      title: 'نستخدم ملفات تعريف الارتباط',
+      description: 'نستخدم ملفات تحليلية مجهولة لفهم كيفية استخدام الزوار لموقعنا وتحسين تجربة الحجز. لا تُباع أي بيانات شخصية.',
+      accept: 'قبول',
+      decline: 'رفض',
+      learnMore: 'سياسة الخصوصية',
     },
   },
 } as const

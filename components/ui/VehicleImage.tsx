@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Car, Bus, Truck } from "lucide-react";
 
 interface VehicleImageProps {
@@ -10,6 +11,7 @@ interface VehicleImageProps {
   category: string;
   className?: string;
   sizes?: string;
+  priority?: boolean;
 }
 
 const categoryIcon = {
@@ -21,9 +23,10 @@ const categoryIcon = {
 export default function VehicleImage({
   src,
   alt,
-  bgColor = "#1a1a2e",
   category,
   className = "",
+  sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
+  priority = false,
 }: VehicleImageProps) {
   const [error, setError] = useState(false);
   const Icon = categoryIcon[category as keyof typeof categoryIcon] ?? Car;
@@ -44,11 +47,14 @@ export default function VehicleImage({
   }
 
   return (
-    <img
+    <Image
       src={src}
       alt={alt}
-      className={`absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${className}`}
-      loading="lazy"
+      fill
+      priority={priority}
+      loading={priority ? undefined : "lazy"}
+      className={`object-cover group-hover:scale-105 transition-transform duration-500 ${className}`}
+      sizes={sizes}
       onError={() => setError(true)}
     />
   );
