@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/"],
+      disallow: ["/admin", "/api/", "/data/"],
     },
     sitemap: "https://nigor2transport.ma/sitemap.xml",
   };

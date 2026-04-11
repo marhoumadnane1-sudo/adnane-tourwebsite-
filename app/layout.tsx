@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { headers } from "next/headers";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
@@ -7,35 +8,61 @@ import { LanguageDirectionSync } from "@/components/layout/LanguageDirectionSync
 import { MobileStickyBar } from "@/components/home/MobileStickyBar";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://nigor2transport.ma"),
   title: {
-    default: "NIGOR 2Transport — Private Transfers Across Morocco",
+    default: "NIGOR 2Transport — Private Transfers Morocco",
     template: "%s | NIGOR 2Transport",
   },
   description:
-    "Book private airport transfers from Casablanca Mohammed V (CMN), city-to-city rides and day hire across Morocco. Fixed prices, professional drivers, 24/7 service.",
+    "Licensed private transfers across Morocco. Airport pickups CMN, city-to-city, day hire. Mercedes Vito, Sprinter, E-Class. Fixed prices 24/7.",
   keywords: [
-    "Morocco transfer", "airport transfer Morocco", "Marrakech transfer",
-    "Casablanca airport taxi", "private driver Morocco", "Morocco transport",
-    "نقل المغرب", "transfert Maroc", "taxi aéroport Marrakech",
+    "Morocco transfer",
+    "CMN airport transfer",
+    "Casablanca airport taxi",
+    "transfert aeroport Casablanca",
+    "نقل مطار الدار البيضاء",
+    "private driver Morocco",
+    "taxi Marrakech",
+    "transport touristique Maroc",
   ],
+  authors: [{ name: "NIGOR 2Transport" }],
+  creator: "NIGOR 2Transport",
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "NIGOR 2Transport — Private Transfers Across Morocco",
-    description: "Fixed-price private transfers from Casablanca Mohammed V Airport to all Moroccan cities. Professional drivers, 24/7 availability.",
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["fr_MA", "ar_MA"],
     url: "https://nigor2transport.ma",
     siteName: "NIGOR 2Transport",
-    locale: "en_GB",
-    type: "website",
+    title: "NIGOR 2Transport — Private Transfers Morocco",
+    description:
+      "Licensed private transfers across Morocco. Fixed prices, professional drivers, 24/7.",
+    images: [
+      {
+        url: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1200&q=80",
+        width: 1200,
+        height: 630,
+        alt: "NIGOR 2Transport Morocco",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "NIGOR 2Transport — Private Transfers Across Morocco",
-    description: "Fixed-price private transfers from Casablanca Mohammed V Airport to all Moroccan cities.",
+    title: "NIGOR 2Transport — Private Transfers Morocco",
+    description: "Licensed private transfers across Morocco. Fixed prices, 24/7.",
   },
-  robots: { index: true, follow: true },
-  themeColor: "#B5451B",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const headersList = headers();
+  const pathname = headersList.get('x-pathname') ?? '/';
+  const isAdmin = pathname.startsWith('/admin');
+
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning className="scroll-smooth">
       <head>
@@ -53,7 +80,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               "@type": "LocalBusiness",
               name: "NIGOR 2Transport",
               alternateName: "NIGOR 2Transport",
-              description: "Transport touristique privé agréé au Maroc. Transferts aéroport CMN, trajets ville à ville, location avec chauffeur.",
+              description:
+                "Transport touristique privé agréé au Maroc. Transferts aéroport CMN, trajets ville à ville, location avec chauffeur.",
               url: "https://nigor2transport.ma",
               telephone: "+212661659607",
               email: "nigor2.car@gmail.com",
@@ -73,16 +101,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body
-        className="min-h-screen bg-cream antialiased"
-        suppressHydrationWarning
-      >
+      <body className="min-h-screen bg-cream antialiased" suppressHydrationWarning>
         <LanguageDirectionSync />
-        <Navbar />
+        {!isAdmin && <Navbar />}
         <main>{children}</main>
-        <Footer />
-        <WhatsAppButton />
-        <MobileStickyBar />
+        {!isAdmin && <Footer />}
+        {!isAdmin && <WhatsAppButton />}
+        {!isAdmin && <MobileStickyBar />}
       </body>
     </html>
   );

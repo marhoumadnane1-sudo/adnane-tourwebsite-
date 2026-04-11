@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Phone, Mail, MapPin, Instagram, Facebook, Twitter } from "lucide-react";
 import { CONTACT } from "@/lib/routes";
 import { useTranslation } from "@/hooks/useTranslation";
@@ -44,16 +45,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 bg-terracotta rounded-xl flex items-center justify-center">
-                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <div className="text-lg font-bold">NIGOR 2Transport</div>
-                <div className="text-[10px] font-medium tracking-widest text-gold uppercase">Premium Transfers</div>
-              </div>
+            <div className="mb-4">
+              <Image
+                src="/logo.png"
+                alt="NIGOR 2Transport - Private Car Service"
+                width={140}
+                height={70}
+                className="h-14 w-auto object-contain brightness-0 invert"
+              />
             </div>
             <p className="text-white/50 text-sm leading-relaxed mb-6">
               Morocco&apos;s trusted private transfer service from Casablanca. Professional drivers, fixed prices, 24/7 availability.

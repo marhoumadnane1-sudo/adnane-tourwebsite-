@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle, Calendar, Car, MapPin, Copy, Check, MessageCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useBookingStore } from "@/lib/store";
 import { VEHICLES, EUR_RATE } from "@/lib/prices";
 import { formatDate } from "@/lib/utils";
@@ -18,6 +18,22 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
   const { formData, calculatedPrice, currency, resetBooking } = useBookingStore();
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+
+  // Save booking to admin dashboard
+  useEffect(() => {
+    if (bookingRef && formData && calculatedPrice) {
+      fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookingRef,
+          ...formData,
+          totalPrice: calculatedPrice,
+        }),
+      }).catch(console.error)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bookingRef]);
   const vehicle = VEHICLES.find((v) => v.id === formData.vehicleType);
 
   const priceDisplay = calculatedPrice
