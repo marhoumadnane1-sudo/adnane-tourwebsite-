@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     description: "Fixed-price private transfers from Casablanca Mohammed V Airport to all Moroccan cities. Professional drivers, 24/7 availability.",
     url: "https://nigor2transport.ma",
     siteName: "NIGOR 2Transport",
-    locale: "en_US",
+    locale: "en_GB",
     type: "website",
   },
   twitter: {

@@ -55,7 +55,7 @@ export function CityRouteTable() {
               className={`grid grid-cols-[1fr,auto,auto,auto,auto] gap-4 items-center px-6 py-4 ${i < filtered.length - 1 ? "border-b border-sand/30" : ""}`}
             >
               <span className="font-semibold text-charcoal text-sm">{route.from} → {route.to}</span>
-              <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.distance}</span>
+              <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.distance} km</span>
               <span className="text-charcoal/40 text-xs text-center min-w-[55px]">{route.duration}</span>
               <span className="text-center min-w-[90px]">
                 <span className="font-bold text-terracotta text-sm">{formatPrice(route.prices.vito)}</span>

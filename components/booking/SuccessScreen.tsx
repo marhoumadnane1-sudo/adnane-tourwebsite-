@@ -101,8 +101,8 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
           transition={{ delay: 0.45 }}
           className="text-charcoal/60"
         >
-          {t("booking", "successMsg")}
-          {" "}<strong>{formData.email}</strong>
+          Confirmation sent to <strong>{formData.email}</strong>.
+          {" "}Tap the WhatsApp button below to get instant confirmation.
         </motion.p>
       </div>
 
@@ -173,7 +173,7 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
       >
         <h3 className="font-bold text-charcoal text-sm uppercase tracking-wider">What Happens Next?</h3>
         {[
-          "Tap the WhatsApp button below to send your booking details and get instant confirmation",
+          "Our team has received your booking and will confirm it shortly by WhatsApp or email",
           "Your driver's name and phone number will be sent to you 24 hours before pickup",
           "For airport pickups, your driver will be at arrivals with your name on a sign",
         ].map((step, i) => (

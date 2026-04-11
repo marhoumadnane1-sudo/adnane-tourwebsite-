@@ -164,18 +164,28 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileOpen(!mobileOpen)}
-            className={cn(
-              "lg:hidden p-2 rounded-lg transition-colors",
-              scrolled || !isHome
-                ? "text-charcoal hover:bg-sand/60"
-                : "text-white hover:bg-white/10"
+          {/* Mobile right controls */}
+          <div className="lg:hidden flex items-center gap-2">
+            {pathname !== "/book" && (
+              <Link
+                href="/book"
+                className="btn-primary text-xs px-3 py-2"
+              >
+                {t("nav", "bookNow")}
+              </Link>
             )}
-          >
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className={cn(
+                "p-2 rounded-lg transition-colors",
+                scrolled || !isHome
+                  ? "text-charcoal hover:bg-sand/60"
+                  : "text-white hover:bg-white/10"
+              )}
+            >
+              {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
         </div>
       </div>
 

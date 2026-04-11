@@ -38,7 +38,7 @@ interface BookingPayload {
 
 function routeLabel(formData: BookingPayload["formData"]): string {
   if (formData.serviceType === "airport")
-    return `CMN ${formData.airportCode} ↔ ${formData.destinationAddress}`;
+    return `${formData.airportCode} ↔ ${formData.destinationAddress}`;
   if (formData.serviceType === "city-to-city")
     return `${formData.fromCity} → ${formData.toCity}`;
   return `${formData.baseCity} — Day Hire (${formData.dayHireDuration?.replace("-", " ")})`;

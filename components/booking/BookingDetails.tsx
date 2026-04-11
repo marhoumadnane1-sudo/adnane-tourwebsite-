@@ -123,7 +123,7 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
       email: formData.email ?? "",
       phone: formData.phone ?? "",
       flightNumber: formData.flightNumber ?? "",
-      hotelAddress: formData.hotelAddress ?? "",
+      hotelAddress: formData.hotelAddress || formData.pickupAddress || "",
       specialRequests: formData.specialRequests ?? "",
       paymentMethod: formData.paymentMethod ?? "on-arrival",
       agreePolicy: undefined as any,
@@ -189,8 +189,12 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
             )}
 
             <AddressInput
-              label={`${t("booking", "hotel")} *`}
-              placeholder="Hotel name, riad, or full address..."
+              label={`${formData.serviceType === "city-to-city" ? "Pickup Address" : t("booking", "hotel")} *`}
+              placeholder={
+                formData.serviceType === "city-to-city"
+                  ? "Hotel, riad, or street address for pickup..."
+                  : "Hotel name, riad, or full address..."
+              }
               value={hotelAddress}
               onChange={(val) => setValue("hotelAddress", val, { shouldValidate: true })}
               error={errors.hotelAddress?.message}
@@ -211,7 +215,7 @@ export function BookingDetails({ onSubmit, onBack }: BookingDetailsProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
               { value: "on-arrival", icon: Banknote, label: t("booking", "payOnArrival"), desc: "Cash or card when driver arrives" },
-              { value: "online", icon: CreditCard, label: t("booking", "payOnline"), desc: "Secure payment via PayPal" },
+              { value: "online", icon: CreditCard, label: "Pay Online (PayPal)", desc: "Secure payment via PayPal" },
             ].map((opt) => {
               const Icon = opt.icon;
               const isSelected = paymentMethod === opt.value;
