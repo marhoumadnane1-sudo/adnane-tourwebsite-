@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { BLOG_ARTICLES, formatBlogDate } from "@/lib/blog";
 import { Clock, ArrowRight } from "lucide-react";
 
@@ -41,8 +42,20 @@ export default function BlogPage() {
             <Link
               key={article.slug}
               href={`/blog/${article.slug}`}
-              className="group block bg-white rounded-2xl border border-sand-dark shadow-card hover:shadow-lg hover:border-terracotta/30 transition-all duration-200 p-6 sm:p-8"
+              className="group block bg-white rounded-2xl border border-sand-dark shadow-card hover:shadow-lg hover:border-terracotta/30 transition-all duration-200 overflow-hidden"
             >
+              {/* Cover image */}
+              <div className="relative h-48 overflow-hidden">
+                <Image
+                  src={article.coverImage}
+                  alt={article.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/30 to-transparent" />
+              </div>
+              <div className="p-6 sm:p-8">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3 mb-3 flex-wrap">
@@ -65,6 +78,7 @@ export default function BlogPage() {
                 <div className="w-10 h-10 bg-sand rounded-xl flex items-center justify-center flex-shrink-0 group-hover:bg-terracotta transition-colors mt-1">
                   <ArrowRight className="w-4 h-4 text-charcoal/40 group-hover:text-white transition-colors" />
                 </div>
+              </div>
               </div>
             </Link>
           ))}

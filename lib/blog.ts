@@ -5,6 +5,7 @@ export interface BlogArticle {
   keywords: string[];
   date: string;
   readTime: number;
+  coverImage: string;
   content: string;
 }
 
@@ -23,6 +24,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     ],
     date: "2026-03-15",
     readTime: 5,
+    coverImage: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=800&q=80",
     content: `
 ## Transfert Aéroport Casablanca CMN : le guide complet
 
@@ -101,6 +103,7 @@ Basés à Casablanca (Ain Borja), nous opérons depuis plusieurs années sur tou
     ],
     date: "2026-02-20",
     readTime: 6,
+    coverImage: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&q=80",
     content: `
 ## Navette Aéroport Casablanca : quel transport choisir ?
 
@@ -206,6 +209,7 @@ Avec **NIGOR 2Transport**, réservez en ligne en 3 minutes. Votre chauffeur sera
     ],
     date: "2026-01-10",
     readTime: 7,
+    coverImage: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=800&q=80",
     content: `
 ## Transfert Privé au Maroc : Le Guide Complet 2026
 

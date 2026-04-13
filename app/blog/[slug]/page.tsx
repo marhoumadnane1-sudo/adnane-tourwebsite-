@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { BLOG_ARTICLES, getArticleBySlug, formatBlogDate } from "@/lib/blog";
 import { Clock, ArrowLeft, ArrowRight, Calendar } from "lucide-react";
 
@@ -117,6 +118,19 @@ export default function BlogArticlePage({ params }: Props) {
           <span>/</span>
           <span className="text-charcoal/70 truncate max-w-[200px]">{article.title}</span>
         </nav>
+
+        {/* Cover image */}
+        <div className="relative h-56 sm:h-72 rounded-2xl overflow-hidden mb-8">
+          <Image
+            src={article.coverImage}
+            alt={article.title}
+            fill
+            className="object-cover"
+            priority
+            sizes="(max-width: 768px) 100vw, 768px"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/50 to-transparent" />
+        </div>
 
         {/* Article header */}
         <header className="mb-8">
