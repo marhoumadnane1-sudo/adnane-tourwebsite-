@@ -1,25 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { sanitize } from "@/lib/sanitize";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const BUSINESS_EMAIL = "nigor2.car@gmail.com";
 const FROM_EMAIL = process.env.FROM_EMAIL ?? "NIGOR 2Transport <onboarding@resend.dev>";
 
 export async function POST(req: NextRequest) {
+  // ── Rate limiting: 5 requests per IP per minute ──
+  const ip = getClientIp(req);
+  const { allowed, retryAfterMs } = rateLimit(`contact:${ip}`, 5, 60_000);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a moment before trying again." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(Math.ceil(retryAfterMs / 1000)) },
+      }
+    );
+  }
+
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ ok: true, skipped: true });
   }
 
-  let body: { name: string; email: string; phone?: string; subject?: string; message: string };
+  let body: { name?: unknown; email?: unknown; phone?: unknown; subject?: unknown; message?: unknown };
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { name, email, phone, subject, message } = body;
-  if (!name || !email || !message) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  // ── Input validation ──
+  const name = sanitize(body.name);
+  const email = sanitize(body.email);
+  const phone = sanitize(body.phone);
+  const subject = sanitize(body.subject);
+  const message = sanitize(body.message);
+
+  if (!name || name.length < 2) {
+    return NextResponse.json({ error: "Name must be at least 2 characters" }, { status: 400 });
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: "Please provide a valid email address" }, { status: 400 });
+  }
+  if (!message || message.length < 10) {
+    return NextResponse.json({ error: "Message must be at least 10 characters" }, { status: 400 });
+  }
+  if (message.length > 2000) {
+    return NextResponse.json({ error: "Message is too long (max 2000 characters)" }, { status: 400 });
   }
 
   try {
@@ -74,6 +104,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     console.error("Contact email error:", err);
-    return NextResponse.json({ error: "Failed to send" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to send email. Please try WhatsApp." }, { status: 500 });
   }
 }
