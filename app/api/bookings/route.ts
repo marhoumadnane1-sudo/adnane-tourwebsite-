@@ -1,24 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
+import { Redis } from "@upstash/redis";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
-const DB_PATH = path.join(process.cwd(), "data", "bookings.json");
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 
-async function readBookings() {
-  try {
-    await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-    const data = await fs.readFile(DB_PATH, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writeBookings(bookings: unknown[]) {
-  await fs.mkdir(path.dirname(DB_PATH), { recursive: true });
-  await fs.writeFile(DB_PATH, JSON.stringify(bookings, null, 2));
-}
+const BOOKINGS_KEY = "bookings";
 
 // GET — list all bookings (admin only)
 export async function GET(req: NextRequest) {
@@ -26,7 +15,10 @@ export async function GET(req: NextRequest) {
   if (cookie !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const bookings = await readBookings();
+  const raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+  const bookings = raw.map((item) =>
+    typeof item === "string" ? JSON.parse(item) : item
+  );
   return NextResponse.json(bookings);
 }
 
@@ -44,24 +36,28 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let booking: Record<string, unknown>;
+  let body: Record<string, unknown>;
   try {
-    booking = await req.json();
+    body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const bookings = await readBookings();
+  const formData = (body.formData ?? {}) as Record<string, unknown>;
 
+  // Flatten formData fields so the admin dashboard can read them directly
   const newBooking = {
-    ...booking,
-    id: booking.bookingRef,
+    ...formData,
+    id: body.bookingRef,
+    bookingRef: body.bookingRef,
+    totalPrice: body.calculatedPrice,
+    currency: body.currency,
     createdAt: new Date().toISOString(),
     status: "pending",
   };
 
-  bookings.unshift(newBooking);
-  await writeBookings(bookings);
+  await redis.lpush(BOOKINGS_KEY, JSON.stringify(newBooking));
+  console.log("[bookings] Saved to Redis:", newBooking.id, newBooking);
 
   return NextResponse.json({ ok: true, booking: newBooking });
 }
@@ -85,17 +81,19 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Missing id or status" }, { status: 400 });
   }
 
-  const bookings = await readBookings();
-  const idx = bookings.findIndex((b: { id: string }) => b.id === id);
+  const raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+  const bookings = raw.map((item) =>
+    typeof item === "string" ? JSON.parse(item) : item
+  ) as Array<Record<string, unknown>>;
 
+  const idx = bookings.findIndex((b) => b.id === id);
   if (idx === -1) {
     return NextResponse.json({ error: "Booking not found" }, { status: 404 });
   }
 
-  const booking = bookings[idx] as Record<string, unknown>;
-  booking.status = status;
-  booking.updatedAt = new Date().toISOString();
-  await writeBookings(bookings);
+  bookings[idx].status = status;
+  bookings[idx].updatedAt = new Date().toISOString();
+  await redis.lset(BOOKINGS_KEY, idx, JSON.stringify(bookings[idx]));
 
   return NextResponse.json({ ok: true });
 }
