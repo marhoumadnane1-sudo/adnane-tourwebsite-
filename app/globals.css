@@ -100,6 +100,15 @@
   border-radius: 3px;
 }
 
+/* Navbar slide-down entrance */
+@keyframes navbar-slide-down {
+  from { transform: translateY(-80px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-navbar {
+  animation: navbar-slide-down 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
 /* Floating WhatsApp pulse */
 @keyframes whatsapp-pulse {
   0% {
