@@ -71,7 +71,8 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
     formData.dropoffAddress ? `🏨 Drop-off: ${formData.dropoffAddress}` : "",
     formData.destinationAddress && formData.serviceType === "airport"
       ? `🏨 Hotel/Address: ${formData.destinationAddress}` : "",
-    `📅 Date: ${formatDate(formData.date ?? "")} at ${formData.time}`,
+    `📅 ${formData.returnTrip ? "Outbound (Aller)" : "Date"}: ${formatDate(formData.date ?? "")} at ${formData.time}`,
+    formData.returnTrip && formData.returnDate ? `🔄 Return (Retour): ${formatDate(formData.returnDate)} at ${formData.returnTime}` : "",
     `👥 Passengers: ${formData.passengers} · 🧳 Luggage: ${formData.luggage} pieces`,
     `🚙 Vehicle: ${vehicle?.name ?? formData.vehicleType}`,
     formData.flightNumber ? `✈️ Flight: ${formData.flightNumber}` : "",
@@ -163,7 +164,13 @@ export function SuccessScreen({ bookingRef }: SuccessScreenProps) {
           </div>
           <div className="flex items-start gap-2">
             <Calendar className="w-4 h-4 text-terracotta mt-0.5 flex-shrink-0" />
-            <div><p className="text-charcoal/40 text-xs">Date & Time</p><p className="font-semibold">{formatDate(formData.date ?? "")} at {formData.time}</p></div>
+            <div>
+              <p className="text-charcoal/40 text-xs">{formData.returnTrip ? "Outbound — Aller" : "Date & Time"}</p>
+              <p className="font-semibold">{formatDate(formData.date ?? "")} at {formData.time}</p>
+              {formData.returnTrip && formData.returnDate && (
+                <p className="text-charcoal/60 text-xs mt-1">↩ Return: {formatDate(formData.returnDate)} at {formData.returnTime}</p>
+              )}
+            </div>
           </div>
           <div className="flex items-start gap-2">
             <Car className="w-4 h-4 text-terracotta mt-0.5 flex-shrink-0" />

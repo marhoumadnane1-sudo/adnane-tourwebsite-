@@ -66,8 +66,15 @@ function OrderSummary() {
           <div className="flex items-start gap-2">
             <Calendar className="w-4 h-4 text-terracotta mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-charcoal/40 text-xs uppercase tracking-wider">Date & Time</p>
+              <p className="text-charcoal/40 text-xs uppercase tracking-wider">
+                {formData.returnTrip ? "Outbound — Aller" : "Date & Time"}
+              </p>
               <p className="font-semibold text-charcoal">{formatDate(formData.date)} at {formData.time}</p>
+              {formData.returnTrip && formData.returnDate && (
+                <p className="text-charcoal/60 text-xs mt-1">
+                  ↩ Return: {formatDate(formData.returnDate)} at {formData.returnTime}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -95,7 +102,9 @@ function OrderSummary() {
           <span className="text-charcoal/60 text-sm">{t("booking", "total")}</span>
           <span className="text-2xl font-bold text-terracotta">{priceDisplay}</span>
         </div>
-        <p className="text-charcoal/40 text-xs text-right">{t("booking", "allInclusive")}</p>
+        <p className="text-charcoal/40 text-xs text-right">
+          {formData.returnTrip ? "Aller-retour · 2 × single trip" : t("booking", "allInclusive")}
+        </p>
       </div>
 
       <div className="bg-terracotta/8 rounded-xl p-3 text-xs text-terracotta font-medium text-center">

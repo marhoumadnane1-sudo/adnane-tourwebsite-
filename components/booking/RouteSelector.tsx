@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plane, MapPin, Car, Minus, Plus, Tag } from "lucide-react";
+import { Plane, MapPin, Car, Minus, Plus, Tag, ArrowRightLeft } from "lucide-react";
 import { useBookingStore } from "@/lib/store";
 import { AIRPORTS, CITIES } from "@/lib/routes";
 import {
@@ -68,6 +68,11 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
   const [pickupAddress, setPickupAddress] = useState(formData.pickupAddress ?? "");
   const [dropoffAddress, setDropoffAddress] = useState(formData.dropoffAddress ?? "");
 
+  // Return trip state
+  const [returnTrip, setReturnTrip] = useState(formData.returnTrip ?? false);
+  const [returnDate, setReturnDate] = useState(formData.returnDate ?? "");
+  const [returnTime, setReturnTime] = useState(formData.returnTime ?? "10:00");
+
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -94,6 +99,7 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
   const fromCity       = watch("fromCity");
   const toCity         = watch("toCity");
   const dayHireDuration = watch("dayHireDuration");
+  const outboundDate   = watch("date");
 
   // Cities available for the selected airport
   const airportCities = useMemo(
@@ -133,7 +139,15 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
   }
 
   function onSubmit(values: FormValues) {
-    updateFormData({ ...values as any, pickupAddress, dropoffAddress });
+    const hasReturn = returnTrip && values.serviceType !== "day-hire";
+    updateFormData({
+      ...values as any,
+      pickupAddress,
+      dropoffAddress,
+      returnTrip: hasReturn,
+      returnDate: hasReturn ? returnDate : undefined,
+      returnTime: hasReturn ? returnTime : undefined,
+    });
     onNext();
   }
 
@@ -330,20 +344,100 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-            {t("booking", "date")}
+            {returnTrip && serviceType !== "day-hire" ? "Outbound — Aller" : t("booking", "date")}
           </label>
           <input type="date" min={today} {...register("date")} className="input-field" />
           {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date.message}</p>}
         </div>
         <div>
           <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
-            {t("booking", "time")}
+            {returnTrip && serviceType !== "day-hire" ? "Outbound Time — Heure aller" : t("booking", "time")}
             <span className="ml-1 text-charcoal/30 normal-case font-normal">(local Morocco time)</span>
           </label>
           <input type="time" {...register("time")} className="input-field" />
           {errors.time && <p className="text-red-500 text-xs mt-1">{errors.time.message}</p>}
         </div>
       </div>
+
+      {/* ── Return Trip Toggle ────────────────────────────────────────────────── */}
+      {serviceType !== "day-hire" && (
+        <div className="space-y-3">
+          <button
+            type="button"
+            onClick={() => {
+              const next = !returnTrip;
+              setReturnTrip(next);
+              if (!next) { setReturnDate(""); setReturnTime("10:00"); }
+            }}
+            className={cn(
+              "w-full flex items-center justify-between gap-3 p-4 rounded-2xl border-2 text-left transition-all duration-200",
+              returnTrip
+                ? "border-terracotta bg-terracotta/5 shadow-glow"
+                : "border-sand-dark hover:border-terracotta/40 hover:bg-sand/40"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", returnTrip ? "bg-terracotta" : "bg-sand")}>
+                <ArrowRightLeft className={cn("w-5 h-5", returnTrip ? "text-white" : "text-charcoal/60")} />
+              </div>
+              <div>
+                <p className={cn("font-semibold text-sm", returnTrip ? "text-terracotta" : "text-charcoal")}>
+                  Return trip — Aller-retour
+                </p>
+                <p className="text-charcoal/40 text-xs">Add a return journey · Price × 2</p>
+              </div>
+            </div>
+            <div className={cn(
+              "w-11 h-6 rounded-full transition-all duration-200 flex items-center px-0.5 flex-shrink-0",
+              returnTrip ? "bg-terracotta" : "bg-sand-dark"
+            )}>
+              <div className={cn(
+                "w-5 h-5 bg-white rounded-full shadow-sm transition-transform duration-200",
+                returnTrip ? "translate-x-5" : "translate-x-0"
+              )} />
+            </div>
+          </button>
+
+          <AnimatePresence>
+            {returnTrip && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="overflow-hidden"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                  <div>
+                    <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
+                      Return Date — Retour *
+                    </label>
+                    <input
+                      type="date"
+                      min={outboundDate || today}
+                      value={returnDate}
+                      onChange={(e) => setReturnDate(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-charcoal/60 uppercase tracking-wider mb-1.5">
+                      Return Time — Heure retour
+                      <span className="ml-1 text-charcoal/30 normal-case font-normal">(Morocco time)</span>
+                    </label>
+                    <input
+                      type="time"
+                      value={returnTime}
+                      onChange={(e) => setReturnTime(e.target.value)}
+                      className="input-field"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* ── Passengers & Luggage ──────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-4">
@@ -397,14 +491,18 @@ export function RouteSelector({ onNext }: RouteSelectorProps) {
                 <Tag className="w-4 h-4 text-terracotta" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider">Estimated price — Mercedes Vito</p>
-                <p className="text-xs text-charcoal/40 mt-0.5">All-inclusive · Per vehicle · Fixed price — choose vehicle on next step</p>
+                <p className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider">
+                  {returnTrip ? "Estimated round-trip — Mercedes Vito" : "Estimated price — Mercedes Vito"}
+                </p>
+                <p className="text-xs text-charcoal/40 mt-0.5">
+                  {returnTrip ? `Aller-retour · 2 × ${formatPreviewPrice(previewPrice)}` : "All-inclusive · Per vehicle · Fixed price — choose vehicle on next step"}
+                </p>
               </div>
             </div>
             <div className="text-right flex-shrink-0">
-              <p className="text-2xl font-bold text-terracotta">{formatPreviewPrice(previewPrice)}</p>
+              <p className="text-2xl font-bold text-terracotta">{formatPreviewPrice(returnTrip ? previewPrice * 2 : previewPrice)}</p>
               {currency === "MAD" && (
-                <p className="text-xs text-charcoal/30">≈ €{(previewPrice / EUR_RATE).toFixed(0)}</p>
+                <p className="text-xs text-charcoal/30">≈ €{((returnTrip ? previewPrice * 2 : previewPrice) / EUR_RATE).toFixed(0)}</p>
               )}
             </div>
           </motion.div>

@@ -75,6 +75,9 @@ export interface BookingFormData {
   hotelAddress: string;
   specialRequests?: string;
   paymentMethod: "online" | "on-arrival";
+  returnTrip?: boolean;
+  returnDate?: string;
+  returnTime?: string;
 }
 
 export interface PriceCalculation {

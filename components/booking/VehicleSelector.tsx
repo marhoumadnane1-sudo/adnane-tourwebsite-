@@ -63,6 +63,7 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
   const recommended = getRecommendedVehicle(formData.passengers ?? 2);
   const [selected, setSelected] = useState<VehicleType>(formData.vehicleType ?? recommended);
   const routeValid = hasValidRoute(formData);
+  const isReturn = !!formData.returnTrip;
 
   function formatPrice(amount: number) {
     if (amount === 0) return "—";
@@ -73,20 +74,20 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
   function handleSelect(vehicleId: VehicleType) {
     setSelected(vehicleId);
     const price = getPriceForFormData(formData, vehicleId);
-    setCalculatedPrice(price);
+    setCalculatedPrice(isReturn ? price * 2 : price);
     updateFormData({ vehicleType: vehicleId });
   }
 
   function handleNext() {
     const price = getPriceForFormData(formData, selected);
-    setCalculatedPrice(price);
+    setCalculatedPrice(isReturn ? price * 2 : price);
     updateFormData({ vehicleType: selected });
     onNext();
   }
 
   useEffect(() => {
     const price = getPriceForFormData(formData, selected);
-    setCalculatedPrice(price);
+    setCalculatedPrice(isReturn ? price * 2 : price);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -97,6 +98,7 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
   }
 
   const currentPrice = getPriceForFormData(formData, selected);
+  const displayCurrentPrice = isReturn ? currentPrice * 2 : currentPrice;
 
   return (
     <div className="space-y-5">
@@ -108,16 +110,26 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
           <span>{formData.passengers} pax</span>
           <span className="mx-2">·</span>
           <span>{VEHICLES.find((v) => v.id === selected)?.name}</span>
+          {isReturn && (
+            <span className="ml-2 text-xs bg-terracotta/10 text-terracotta px-2 py-0.5 rounded-full font-semibold">↩ Aller-retour</span>
+          )}
         </div>
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${selected}-${currentPrice}`}
+            key={`${selected}-${displayCurrentPrice}`}
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 6 }}
-            className="text-xl font-bold text-terracotta shrink-0"
+            className="text-right shrink-0"
           >
-            {routeValid ? formatPrice(currentPrice) : <span className="text-sm text-charcoal/40">Select route first</span>}
+            {routeValid ? (
+              <>
+                <div className="text-xl font-bold text-terracotta">{formatPrice(displayCurrentPrice)}</div>
+                {isReturn && <div className="text-xs text-terracotta/70">2 × {formatPrice(currentPrice)}</div>}
+              </>
+            ) : (
+              <span className="text-sm text-charcoal/40">Select route first</span>
+            )}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -149,6 +161,7 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
               <div className="space-y-3">
                 {categoryVehicles.map((vehicle) => {
                   const price = getPriceForFormData(formData, vehicle.id);
+                  const displayedPrice = isReturn ? price * 2 : price;
                   const isSuitable = vehicle.capacity >= (formData.passengers ?? 1);
                   const isSelected = selected === vehicle.id;
                   // Vito is always the "recommended" default
@@ -231,9 +244,11 @@ export function VehicleSelector({ onNext, onBack }: VehicleSelectorProps) {
                             {/* Price */}
                             <div className="text-right flex-shrink-0">
                               <div className={cn("text-xl sm:text-2xl font-bold", isSelected ? "text-terracotta" : "text-charcoal")}>
-                                {formatPrice(price)}
+                                {formatPrice(displayedPrice)}
                               </div>
-                              <div className="text-[11px] text-charcoal/40">{t("booking", "perVehicle")}</div>
+                              <div className="text-[11px] text-charcoal/40">
+                                {isReturn ? `Aller-retour · 2 × ${formatPrice(price)}` : t("booking", "perVehicle")}
+                              </div>
 
                               {isSelected && (
                                 <div className="mt-2 w-7 h-7 bg-terracotta rounded-full flex items-center justify-center ml-auto">
