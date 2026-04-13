@@ -7,7 +7,7 @@ import { PopularRoutes } from "@/components/home/PopularRoutes";
 import { HowItWorks } from "@/components/home/HowItWorks";
 
 const Fleet = dynamic(() => import("@/components/home/Fleet").then(m => ({ default: m.Fleet })));
-const Testimonials = dynamic(() => import("@/components/home/Testimonials").then(m => ({ default: m.Testimonials })));
+const Testimonials = dynamic(() => import("@/components/home/Testimonials").then(m => ({ default: m.Testimonials })), { ssr: false });
 const Team = dynamic(() => import("@/components/home/Team").then(m => ({ default: m.Team })));
 const FAQ = dynamic(() => import("@/components/home/FAQ").then(m => ({ default: m.FAQ })));
 

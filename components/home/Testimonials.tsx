@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
 const GOOGLE_REVIEWS = [
@@ -60,7 +59,8 @@ function StarRating({ rating }: { rating: number }) {
       {[1, 2, 3, 4, 5].map((s) => (
         <Star
           key={s}
-          className={`w-3.5 h-3.5 ${s <= rating ? "fill-[#FBBC04] text-[#FBBC04]" : "text-white/20"}`}
+          style={s <= rating ? { fill: "#FBBC04", color: "#FBBC04" } : { color: "rgba(255,255,255,0.2)" }}
+          className="w-3.5 h-3.5"
         />
       ))}
     </div>
@@ -75,16 +75,10 @@ export function Testimonials() {
       <div className="absolute top-0 right-0 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
 
-      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8" suppressHydrationWarning>
 
         {/* Google Reviews header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-12">
           {/* Google branding */}
           <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-5 py-3 mb-6">
             <GoogleIcon size={22} />
@@ -98,24 +92,20 @@ export function Testimonials() {
               <div className="flex flex-col items-start gap-1">
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-5 h-5 fill-[#FBBC04] text-[#FBBC04]" />
+                    <Star key={s} className="w-5 h-5" style={{ fill: "#FBBC04", color: "#FBBC04" }} />
                   ))}
                 </div>
                 <span className="text-white/50 text-sm">127 reviews</span>
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {/* Review cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          {GOOGLE_REVIEWS.map((review, i) => (
-            <motion.div
+          {GOOGLE_REVIEWS.map((review) => (
+            <div
               key={review.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
               className="bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-lg"
             >
               {/* Reviewer header */}
@@ -148,18 +138,12 @@ export function Testimonials() {
                 <GoogleIcon size={13} />
                 <span className="text-charcoal/30 text-xs">Posted on Google</span>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-          className="text-center"
-        >
+        <div className="text-center">
           <a
             href="#"
             target="_blank"
@@ -172,7 +156,7 @@ export function Testimonials() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
-        </motion.div>
+        </div>
 
       </div>
     </section>
