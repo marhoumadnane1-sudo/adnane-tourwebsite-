@@ -55,6 +55,16 @@ function BookingContent() {
     } catch (err) {
       console.error("Booking notification failed:", err);
     }
+    // Save booking to Redis so it appears in the admin dashboard
+    try {
+      await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingRef: ref, formData, calculatedPrice, currency }),
+      });
+    } catch (err) {
+      console.error("Booking save failed:", err);
+    }
   }
 
   return (
