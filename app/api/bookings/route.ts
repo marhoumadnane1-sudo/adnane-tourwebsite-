@@ -74,45 +74,32 @@ export async function PATCH(req: NextRequest) {
   if (cookie !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-
   let body: { id?: unknown; status?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
-
   const { id, status } = body;
   if (typeof id !== "string" || typeof status !== "string") {
     return NextResponse.json({ error: "Missing id or status" }, { status: 400 });
   }
-
-  let raw: unknown[];
   try {
-    raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+    const items = await redis.lrange("bookings", 0, -1);
+    const bookings = items.map((item: unknown) => {
+      if (typeof item === "string") return JSON.parse(item);
+      return item;
+    });
+    const idx = bookings.findIndex((b: Record<string, unknown>) => b.id === id || b.bookingRef === id);
+    if (idx === -1) {
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+    bookings[idx].status = status;
+    bookings[idx].updatedAt = new Date().toISOString();
+    await redis.lset("bookings", idx, JSON.stringify(bookings[idx]));
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[bookings PATCH] lrange failed:", err);
-    return NextResponse.json({ error: "Failed to read bookings" }, { status: 500 });
+    console.error("PATCH error:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
-
-  const bookings = raw.map((item) =>
-    typeof item === "string" ? JSON.parse(item) : item
-  ) as Array<Record<string, unknown>>;
-
-  const idx = bookings.findIndex((b) => b.id === id);
-  if (idx === -1) {
-    return NextResponse.json({ error: "Booking not found" }, { status: 404 });
-  }
-
-  bookings[idx].status = status;
-  bookings[idx].updatedAt = new Date().toISOString();
-
-  try {
-    await redis.lset(BOOKINGS_KEY, idx, JSON.stringify(bookings[idx]));
-  } catch (err) {
-    console.error("[bookings PATCH] lset failed:", err);
-    return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
-  }
-
-  return NextResponse.json({ ok: true });
 }
