@@ -15,7 +15,13 @@ export async function GET(req: NextRequest) {
   if (cookie !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+  let raw: unknown[];
+  try {
+    raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+  } catch (err) {
+    console.error("[bookings GET] lrange failed:", err);
+    return NextResponse.json({ error: "Failed to read bookings" }, { status: 500 });
+  }
   const bookings = raw.map((item) =>
     typeof item === "string" ? JSON.parse(item) : item
   );
@@ -81,7 +87,14 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "Missing id or status" }, { status: 400 });
   }
 
-  const raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+  let raw: unknown[];
+  try {
+    raw = await redis.lrange(BOOKINGS_KEY, 0, -1);
+  } catch (err) {
+    console.error("[bookings PATCH] lrange failed:", err);
+    return NextResponse.json({ error: "Failed to read bookings" }, { status: 500 });
+  }
+
   const bookings = raw.map((item) =>
     typeof item === "string" ? JSON.parse(item) : item
   ) as Array<Record<string, unknown>>;
@@ -93,7 +106,13 @@ export async function PATCH(req: NextRequest) {
 
   bookings[idx].status = status;
   bookings[idx].updatedAt = new Date().toISOString();
-  await redis.lset(BOOKINGS_KEY, idx, JSON.stringify(bookings[idx]));
+
+  try {
+    await redis.lset(BOOKINGS_KEY, idx, JSON.stringify(bookings[idx]));
+  } catch (err) {
+    console.error("[bookings PATCH] lset failed:", err);
+    return NextResponse.json({ error: "Failed to update booking" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }
