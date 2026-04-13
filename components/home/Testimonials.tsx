@@ -1,240 +1,179 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Star, ChevronLeft, ChevronRight, Quote } from "lucide-react";
-import { useTranslation } from "@/hooks/useTranslation";
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
-const testimonials = [
+const GOOGLE_REVIEWS = [
   {
     id: 1,
     name: "Sarah Mitchell",
-    country: "🇬🇧 United Kingdom",
-    avatar: "SM",
+    initials: "SM",
+    avatarColor: "#4285F4",
     rating: 5,
-    text: "Absolutely seamless transfer from Casablanca airport to Marrakech. Our driver Mohamed was waiting right at arrivals with a sign, helped with all our luggage, and the car was spotless. The price was exactly what was quoted — no surprises. Highly recommend!",
-    route: "CMN → Marrakech",
     date: "March 2025",
+    text: "Absolutely seamless transfer from Casablanca airport to Marrakech. Our driver was waiting right at arrivals with a sign, helped with all our luggage, and the car was spotless. The price was exactly what was quoted — no surprises. Highly recommend!",
   },
   {
     id: 2,
     name: "Pierre Durand",
-    country: "🇫🇷 France",
-    avatar: "PD",
+    initials: "PD",
+    avatarColor: "#EA4335",
     rating: 5,
-    text: "Nous avons utilisé NIGOR 2Transport pour un aller-retour Fès - Chefchaouen. Le chauffeur était ponctuel, connaissait parfaitement la route et était très agréable. Le van était climatisé et confortable. Prix fixe, aucun supplément. Parfait!",
-    route: "Fez → Chefchaouen",
     date: "February 2025",
+    text: "Service impeccable pour notre trajet Fès - Chefchaouen. Le chauffeur était ponctuel, très agréable et connaissait parfaitement la route. Prix fixe, aucun supplément. Je recommande vivement NIGOR 2Transport !",
   },
   {
     id: 3,
-    name: "David & Emma Kowalski",
-    country: "🇩🇪 Germany",
-    avatar: "DK",
+    name: "Ahmed Karim",
+    initials: "AK",
+    avatarColor: "#34A853",
     rating: 5,
-    text: "We hired a private driver for 3 days to explore the Draa Valley and Sahara. The itinerary was flexible, the Mercedes Sprinter was comfortable for our group of 8, and the driver was knowledgeable about local history. Multi-day discount made it great value.",
-    route: "Marrakech → Merzouga (3-day)",
     date: "January 2025",
+    text: "Excellent service, chauffeur professionnel et ponctuel. La voiture était très propre et confortable. Le prix affiché est le prix payé, sans mauvaise surprise. J'utilise ce service régulièrement pour mes déplacements professionnels.",
   },
   {
     id: 4,
-    name: "Yuki Tanaka",
-    country: "🇯🇵 Japan",
-    avatar: "YT",
+    name: "Emma Schneider",
+    initials: "ES",
+    avatarColor: "#FBBC05",
     rating: 5,
-    text: "Our flight to RAK was delayed by 2 hours and the driver waited for us with no extra charge — exactly as promised. The transfer to our riad in the Medina was smooth despite the narrow streets. The driver knew a perfect shortcut. Will use again next trip!",
-    route: "RAK Airport → Marrakech Medina",
     date: "April 2025",
-  },
-  {
-    id: 5,
-    name: "Carlos Mendez",
-    country: "🇪🇸 Spain",
-    avatar: "CM",
-    rating: 5,
-    text: "Used NIGOR 2Transport for the Agadir to Essaouira route. The comfort sedan was clean and the music selection was fantastic! The driver was on time, professional and pointed out beautiful viewpoints along the coast road. Fixed price is a huge plus — no haggling.",
-    route: "Agadir → Essaouira",
-    date: "March 2025",
+    text: "We booked a 3-day private driver for our family trip through the Atlas Mountains. Flexible itinerary, comfortable Sprinter van, and our driver shared fascinating stories about Morocco. The multi-day discount made it exceptional value.",
   },
 ];
 
-const INTERVAL = 5000;
+// Google G logo SVG
+function GoogleIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Star
+          key={s}
+          className={`w-3.5 h-3.5 ${s <= rating ? "fill-[#FBBC04] text-[#FBBC04]" : "text-white/20"}`}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function Testimonials() {
-  const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(1); // 1 = forward, -1 = back
-  const [paused, setPaused] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const { t } = useTranslation();
-
-  function advance(dir: number) {
-    setDirection(dir);
-    setCurrent((c) => (c + dir + testimonials.length) % testimonials.length);
-  }
-
-  // Auto-advance
-  useEffect(() => {
-    if (paused) return;
-    timerRef.current = setInterval(() => advance(1), INTERVAL);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [paused, current]);
-
-  const testimonial = testimonials[current];
-
-  const variants = {
-    enter: (dir: number) => ({
-      opacity: 0,
-      x: dir > 0 ? 60 : -60,
-      scale: 0.96,
-    }),
-    center: {
-      opacity: 1,
-      x: 0,
-      scale: 1,
-      transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
-    },
-    exit: (dir: number) => ({
-      opacity: 0,
-      x: dir > 0 ? -60 : 60,
-      scale: 0.96,
-      transition: { duration: 0.3, ease: "easeIn" },
-    }),
-  };
-
   return (
-    <section
-      className="py-20 sm:py-28 bg-charcoal relative overflow-hidden"
-      id="reviews"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
-    >
-      {/* Background pattern + orbs */}
+    <section className="py-20 sm:py-28 bg-charcoal relative overflow-hidden" id="reviews">
+      {/* Background */}
       <div className="absolute inset-0 zellige-bg opacity-50" />
       <div className="absolute top-0 right-0 w-96 h-96 bg-terracotta/10 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
 
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Google Reviews header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-14"
+          className="text-center mb-12"
         >
-          <span className="inline-flex items-center gap-2 text-gold text-sm font-semibold uppercase tracking-widest mb-3">
-            <span className="w-6 h-px bg-gold" />
-            Customer Stories
-            <span className="w-6 h-px bg-gold" />
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
-            {t("testimonials", "title")}
-          </h2>
-          <p className="text-white/60 text-base">
-            {t("testimonials", "subtitle")}
-          </p>
-          <div className="flex items-center justify-center gap-1 mt-3">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} className="w-5 h-5 fill-gold text-gold" />
-            ))}
-            <span className="text-white/50 text-sm ml-2">
-              4.9 average from 1,200+ reviews
-            </span>
+          {/* Google branding */}
+          <div className="inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-sm border border-white/10 rounded-2xl px-5 py-3 mb-6">
+            <GoogleIcon size={22} />
+            <span className="text-white font-semibold text-sm tracking-wide">Google Reviews</span>
+          </div>
+
+          {/* Overall rating */}
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-5xl font-black text-white">4.9</span>
+              <div className="flex flex-col items-start gap-1">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-5 h-5 fill-[#FBBC04] text-[#FBBC04]" />
+                  ))}
+                </div>
+                <span className="text-white/50 text-sm">127 reviews</span>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        {/* Main card */}
-        <div className="relative">
-          <AnimatePresence mode="wait" custom={direction}>
+        {/* Review cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          {GOOGLE_REVIEWS.map((review, i) => (
             <motion.div
-              key={current}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 md:p-12 overflow-hidden"
+              key={review.id}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="bg-white rounded-2xl p-5 flex flex-col gap-3 shadow-lg"
             >
-              <Quote className="w-10 h-10 text-terracotta mb-6 opacity-60" />
+              {/* Reviewer header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
+                    style={{ backgroundColor: review.avatarColor }}
+                  >
+                    {review.initials}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-charcoal text-sm leading-tight">{review.name}</p>
+                    <p className="text-charcoal/40 text-xs">{review.date}</p>
+                  </div>
+                </div>
+                <GoogleIcon size={18} />
+              </div>
 
-              <p className="text-white/80 text-lg md:text-xl leading-relaxed mb-8 font-light italic">
-                &ldquo;{testimonial.text}&rdquo;
+              {/* Stars */}
+              <StarRating rating={review.rating} />
+
+              {/* Review text */}
+              <p className="text-charcoal/70 text-sm leading-relaxed flex-1">
+                &ldquo;{review.text}&rdquo;
               </p>
 
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center gap-4">
-                  <motion.div
-                    key={current}
-                    initial={{ scale: 0.7, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    transition={{ duration: 0.4, delay: 0.15 }}
-                    className="w-12 h-12 bg-terracotta rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0"
-                  >
-                    {testimonial.avatar}
-                  </motion.div>
-                  <div>
-                    <p className="text-white font-semibold">{testimonial.name}</p>
-                    <p className="text-white/40 text-sm">
-                      {testimonial.country} · {testimonial.date}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-0.5 justify-end mb-1">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star key={s} className="w-4 h-4 fill-gold text-gold" />
-                    ))}
-                  </div>
-                  <p className="text-white/40 text-xs">{testimonial.route}</p>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mt-8 h-0.5 bg-white/10 rounded-full overflow-hidden">
-                <motion.div
-                  key={`progress-${current}`}
-                  className="h-full bg-terracotta rounded-full"
-                  initial={{ scaleX: 0 }}
-                  animate={paused ? {} : { scaleX: 1 }}
-                  transition={{ duration: INTERVAL / 1000, ease: "linear" }}
-                  style={{ transformOrigin: "left" }}
-                />
+              {/* Footer */}
+              <div className="flex items-center gap-1.5 pt-1 border-t border-gray-100">
+                <GoogleIcon size={13} />
+                <span className="text-charcoal/30 text-xs">Posted on Google</span>
               </div>
             </motion.div>
-          </AnimatePresence>
-
-          {/* Navigation */}
-          <div className="flex items-center justify-between mt-8">
-            <div className="flex gap-2">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === current ? "w-8 bg-terracotta" : "w-4 bg-white/20 hover:bg-white/40"
-                  }`}
-                />
-              ))}
-            </div>
-            <div className="flex gap-3">
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => advance(-1)}
-                className="w-10 h-10 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl flex items-center justify-center text-white transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => advance(1)}
-                className="w-10 h-10 bg-terracotta hover:bg-terracotta-dark rounded-xl flex items-center justify-center text-white transition-colors"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </motion.button>
-            </div>
-          </div>
+          ))}
         </div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+          className="text-center"
+        >
+          <a
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 bg-white hover:bg-gray-50 text-charcoal font-semibold px-6 py-3.5 rounded-xl transition-colors shadow-md text-sm"
+          >
+            <GoogleIcon size={18} />
+            See all reviews on Google
+            <svg className="w-4 h-4 text-charcoal/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </motion.div>
+
       </div>
     </section>
   );

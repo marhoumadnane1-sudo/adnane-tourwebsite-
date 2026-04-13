@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin", "/api/", "/data/"],
+      disallow: ["/admin", "/api/"],
     },
-    sitemap: "https://nigor2transport.ma/sitemap.xml",
+    sitemap: "https://adnane-tourwebsite-s453.vercel.app/sitemap.xml",
   };
 }

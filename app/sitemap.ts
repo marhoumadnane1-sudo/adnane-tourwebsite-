@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://nigor2transport.ma";
+const BASE_URL = "https://adnane-tourwebsite-s453.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -11,16 +11,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${BASE_URL}/book`,
+      url: `${BASE_URL}/about`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.9,
-    },
-    {
-      url: `${BASE_URL}/prices`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.9,
+      priority: 0.7,
     },
     {
       url: `${BASE_URL}/services`,
@@ -29,10 +23,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/about`,
+      url: `${BASE_URL}/prices`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.6,
+      changeFrequency: "weekly",
+      priority: 0.9,
     },
     {
       url: `${BASE_URL}/contact`,
@@ -41,10 +35,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${BASE_URL}/policy`,
+      url: `${BASE_URL}/book`,
       lastModified: new Date(),
-      changeFrequency: "yearly",
-      priority: 0.3,
+      changeFrequency: "monthly",
+      priority: 0.9,
     },
   ];
 }
