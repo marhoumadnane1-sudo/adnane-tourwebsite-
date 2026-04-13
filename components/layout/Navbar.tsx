@@ -31,6 +31,7 @@ export function Navbar() {
     { href: "/services", label: t("nav", "services") },
     { href: "/prices", label: t("nav", "prices") },
     { href: "/contact", label: t("nav", "contact") },
+    { href: "/blog", label: "Blog" },
   ];
 
   useEffect(() => {
