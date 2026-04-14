@@ -31,7 +31,6 @@ export function Navbar() {
     { href: "/services", label: t("nav", "services") || "Services" },
     { href: "/prices", label: t("nav", "prices") || "Prices" },
     { href: "/contact", label: t("nav", "contact") || "Contact" },
-    { href: "/blog", label: "Blog" },
   ];
 
   useEffect(() => {
@@ -83,6 +82,19 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/blog"
+              className={cn(
+                "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                pathname === "/blog"
+                  ? "bg-orange-50 text-terracotta"
+                  : scrolled || !isHome
+                  ? "text-charcoal/70 hover:text-charcoal hover:bg-sand/60"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
+              )}
+            >
+              Blog
+            </Link>
           </nav>
 
           {/* Right side controls */}
@@ -203,6 +215,18 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
+              <Link
+                href="/blog"
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                  pathname === "/blog"
+                    ? "bg-orange-50 text-terracotta"
+                    : "text-charcoal/70 hover:bg-sand/60 hover:text-charcoal"
+                )}
+              >
+                Blog
+              </Link>
 
               {/* Mobile controls row */}
               <div className="pt-3 flex items-center gap-2">
