@@ -159,9 +159,9 @@ export function SearchBar() {
 
   return (
     <div className="w-full max-w-4xl mx-auto" id="search-bar">
-      <div className="bg-white border border-sand-dark rounded-2xl shadow-2xl">
+      <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl">
         {/* Tabs */}
-        <div className="flex border-b border-sand-dark rounded-t-2xl overflow-hidden">
+        <div className="flex border-b border-white/10 rounded-t-2xl overflow-hidden">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -172,7 +172,7 @@ export function SearchBar() {
                   "flex-1 flex items-center justify-center gap-2 py-3.5 text-sm font-medium transition-all duration-200",
                   activeTab === tab.id
                     ? "bg-terracotta text-white"
-                    : "text-charcoal/50 hover:text-charcoal hover:bg-sand/50"
+                    : "text-white/60 hover:text-white hover:bg-white/5"
                 )}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />

@@ -52,7 +52,6 @@ export function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   const { t, tArr, isRTL } = useTranslation();
   const [imgIndex, setImgIndex] = useState(0);
@@ -112,7 +111,7 @@ export function Hero() {
           />
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-charcoal/75 via-charcoal/55 to-charcoal/85" />
+        <div className="absolute inset-0 bg-charcoal/70" />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/30 to-transparent" />
       </div>
 
@@ -147,7 +146,7 @@ export function Hero() {
 
       {/* Hero content */}
       <motion.div
-        style={{ y: textY, opacity }}
+        style={{ y: textY }}
         className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-24 pb-8"
       >
         <div className={`max-w-5xl mx-auto text-center${isRTL ? " rtl" : ""}`}>
