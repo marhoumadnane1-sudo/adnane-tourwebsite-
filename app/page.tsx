@@ -5,6 +5,7 @@ import { Stats } from "@/components/home/Stats";
 import { ServiceCards } from "@/components/home/ServiceCards";
 import { PopularRoutes } from "@/components/home/PopularRoutes";
 import { HowItWorks } from "@/components/home/HowItWorks";
+import { BlogTeaser } from "@/components/home/BlogTeaser";
 
 const Fleet = dynamic(() => import("@/components/home/Fleet").then(m => ({ default: m.Fleet })));
 const Testimonials = dynamic(() => import("@/components/home/Testimonials").then(m => ({ default: m.Testimonials })), { ssr: false });
@@ -56,6 +57,7 @@ export default function HomePage() {
       <Testimonials />
       <Team />
       <FAQ />
+      <BlogTeaser />
     </>
   );
 }

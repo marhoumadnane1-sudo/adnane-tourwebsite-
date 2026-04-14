@@ -20,6 +20,7 @@ const quickLinks = [
   { label: "Price Calculator", href: "/prices" },
   { label: "Popular Routes", href: "/#routes" },
   { label: "Our Fleet", href: "/#fleet" },
+  { label: "Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact" },
 ];
 

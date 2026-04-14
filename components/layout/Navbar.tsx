@@ -26,11 +26,11 @@ export function Navbar() {
   const { t, language, isRTL } = useTranslation();
 
   const navLinks = [
-    { href: "/", label: t("nav", "home") },
-    { href: "/about", label: t("nav", "about") },
-    { href: "/services", label: t("nav", "services") },
-    { href: "/prices", label: t("nav", "prices") },
-    { href: "/contact", label: t("nav", "contact") },
+    { href: "/", label: t("nav", "home") || "Home" },
+    { href: "/about", label: t("nav", "about") || "About" },
+    { href: "/services", label: t("nav", "services") || "Services" },
+    { href: "/prices", label: t("nav", "prices") || "Prices" },
+    { href: "/contact", label: t("nav", "contact") || "Contact" },
     { href: "/blog", label: "Blog" },
   ];
 
