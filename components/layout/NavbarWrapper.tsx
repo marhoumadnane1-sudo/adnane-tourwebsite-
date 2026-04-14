@@ -1,8 +1,6 @@
-"use client";
-
 import dynamic from "next/dynamic";
 
-const NavbarInner = dynamic(
+const Navbar = dynamic(
   () => import("./Navbar").then((m) => ({ default: m.Navbar })),
   {
     ssr: false,
@@ -13,5 +11,5 @@ const NavbarInner = dynamic(
 );
 
 export function NavbarWrapper() {
-  return <NavbarInner />;
+  return <Navbar />;
 }

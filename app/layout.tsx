@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { headers } from "next/headers";
-import { Navbar } from "@/components/layout/Navbar";
+import { NavbarWrapper } from "@/components/layout/NavbarWrapper";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LanguageDirectionSync } from "@/components/layout/LanguageDirectionSync";
@@ -113,7 +113,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         <LanguageDirectionSync />
-        {!isAdmin && <Navbar />}
+        {!isAdmin && <NavbarWrapper />}
 
         <main id="main-content">{children}</main>
 
