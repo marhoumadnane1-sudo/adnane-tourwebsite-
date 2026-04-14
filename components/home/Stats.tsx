@@ -43,10 +43,14 @@ function Counter({
 }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true });
+  const inView = useInView(ref, { once: true, amount: 0 });
 
   useEffect(() => {
-    if (!inView) return;
+    // Fallback: if not triggered by scroll after 500ms, animate anyway
+    const fallback = setTimeout(() => setCount(target), 500);
+    if (!inView) return () => clearTimeout(fallback);
+    clearTimeout(fallback);
+
     const duration = 1800;
     const steps = 60;
     const increment = target / steps;
@@ -60,7 +64,7 @@ function Counter({
       if (step >= steps) clearInterval(timer);
     }, duration / steps);
 
-    return () => clearInterval(timer);
+    return () => { clearInterval(timer); clearTimeout(fallback); };
   }, [inView, target]);
 
   return (
