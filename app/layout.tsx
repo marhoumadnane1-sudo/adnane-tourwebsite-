@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { headers } from "next/headers";
 import { NavbarWrapper } from "@/components/layout/NavbarWrapper";
@@ -7,6 +7,12 @@ import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { LanguageDirectionSync } from "@/components/layout/LanguageDirectionSync";
 import { MobileStickyBar } from "@/components/home/MobileStickyBar";
 import { CookieBanner } from "@/components/ui/CookieBanner";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nigor2transport.ma"),

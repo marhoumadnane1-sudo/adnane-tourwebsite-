@@ -54,6 +54,9 @@ const config: Config = {
         "zellige": "url('/images/zellige-pattern.svg')",
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
       },
+      transitionDuration: {
+        "400": "400ms",
+      },
       boxShadow: {
         "glow": "0 0 30px rgba(181, 69, 27, 0.25)",
         "glow-gold": "0 0 30px rgba(212, 168, 67, 0.3)",

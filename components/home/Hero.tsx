@@ -1,27 +1,34 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, CheckCircle } from "lucide-react";
 import { SearchBar } from "./SearchBar";
 import { useTranslation } from "@/hooks/useTranslation";
 
-const BG_IMAGES = [
-  "https://images.unsplash.com/photo-1548013146-72479768bada?w=1920&q=90",
-  "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1920&q=90",
-  "https://images.unsplash.com/photo-1559087867-ce4c91325525?w=1920&q=90",
-  "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=90",
-  "https://images.unsplash.com/photo-1512100356356-de1b84283e18?w=1920&q=90",
-];
-
-const KEN_BURNS = [
-  { scale: [1, 1.1], x: ["0%", "-3%"], y: ["0%", "-2%"] },
-  { scale: [1.05, 1], x: ["-2%", "2%"], y: ["0%", "0%"] },
-  { scale: [1, 1.08], x: ["2%", "0%"], y: ["-2%", "1%"] },
-  { scale: [1.08, 1.02], x: ["0%", "-2%"], y: ["2%", "0%"] },
-  { scale: [1, 1.1], x: ["-1%", "2%"], y: ["1%", "-2%"] },
+const heroImages = [
+  {
+    src: "https://images.unsplash.com/photo-1548013146-72479768bada?w=1920&q=90",
+    alt: "Morocco desert landscape",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1920&q=90",
+    alt: "Morocco medina streets",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1559087867-ce4c91325525?w=1920&q=90",
+    alt: "Morocco architecture",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1489749798305-4fea3ae63d43?w=1920&q=90",
+    alt: "Morocco Atlas mountains",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1534430480872-3498386e7856?w=1920&q=90",
+    alt: "Morocco coastal view",
+  },
 ];
 
 function WordSplit({ text, delay = 0, className = "" }: { text: string; delay?: number; className?: string }) {
@@ -54,92 +61,97 @@ export function Hero() {
   const textY = useTransform(scrollYProgress, [0, 1], ["0%", "15%"]);
 
   const { t, tArr, isRTL } = useTranslation();
-  const [imgIndex, setImgIndex] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setImgIndex((i) => (i + 1) % BG_IMAGES.length);
-    }, 6500);
-    return () => clearInterval(id);
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % heroImages.length);
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(nextSlide, 5000);
+    return () => clearInterval(timer);
+  }, [nextSlide]);
+
   const highlights = tArr("hero", "highlights");
-  const kb = KEN_BURNS[imgIndex];
 
   return (
     <div ref={ref} className="relative min-h-screen flex flex-col overflow-hidden">
-      {/* Ken Burns slideshow */}
+      {/* Background Slideshow — all slides mounted, only opacity toggles */}
       <div className="absolute inset-0 z-0">
-        <AnimatePresence>
-          <motion.div
-            key={imgIndex}
-            className="absolute inset-0 will-change-transform"
-            initial={{ opacity: 0 }}
-            animate={{
-              opacity: 1,
-              scale: kb.scale as any,
-              x: kb.x as any,
-              y: kb.y as any,
-            }}
-            exit={{ opacity: 0 }}
-            transition={{
-              opacity: { duration: 1.4, ease: "easeInOut" },
-              scale: { duration: 7, ease: "linear" },
-              x: { duration: 7, ease: "linear" },
-              y: { duration: 7, ease: "linear" },
-            }}
+        {heroImages.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ zIndex: index === currentSlide ? 2 : 1 }}
           >
             <Image
-              src={BG_IMAGES[imgIndex]}
-              alt="Morocco landscape"
+              src={image.src}
+              alt={image.alt}
               fill
-              priority={imgIndex === 0}
               className="object-cover"
+              priority={index === 0}
+              loading={index === 0 ? "eager" : "lazy"}
               sizes="100vw"
+              quality={75}
             />
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Preload next image */}
-        <div className="hidden">
-          <Image
-            src={BG_IMAGES[(imgIndex + 1) % BG_IMAGES.length]}
-            alt=""
-            width={1}
-            height={1}
-            priority
-          />
-        </div>
-
-        <div className="absolute inset-0 bg-charcoal/70" />
-        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/30 to-transparent" />
+          </div>
+        ))}
+        {/* Dark overlay */}
+        <div className="absolute inset-0 bg-charcoal/70 z-[3]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/30 to-transparent z-[3]" />
       </div>
 
       {/* Moroccan pattern overlay */}
-      <div className="absolute inset-0 z-[1] moroccan-pattern opacity-20" />
+      <div className="absolute inset-0 z-[4] moroccan-pattern opacity-20" />
 
       {/* Ambient floating orbs */}
       <motion.div
-        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-terracotta/10 blur-3xl z-[1] pointer-events-none"
+        className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-terracotta/10 blur-3xl z-[4] pointer-events-none"
         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
       />
       <motion.div
-        className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-gold/10 blur-3xl z-[1] pointer-events-none"
+        className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-gold/10 blur-3xl z-[4] pointer-events-none"
         animate={{ scale: [1.1, 1, 1.1], opacity: [0.2, 0.4, 0.2] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
       />
 
-      {/* Slide dots */}
-      <div className="absolute bottom-32 right-8 z-20 flex flex-col gap-2">
-        {BG_IMAGES.map((_, i) => (
+      {/* Accessibility: announce current slide */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        Slide {currentSlide + 1} of {heroImages.length}
+      </div>
+
+      {/* Desktop slide dots — vertical right side */}
+      <div className="absolute bottom-32 right-8 flex-col gap-3 hidden md:flex z-20">
+        {heroImages.map((_, i) => (
           <button
             key={i}
-            onClick={() => setImgIndex(i)}
-            className={`rounded-full transition-all duration-400 ${
-              i === imgIndex ? "w-1.5 h-6 bg-white" : "w-1.5 h-1.5 bg-white/30 hover:bg-white/60"
+            onClick={() => setCurrentSlide(i)}
+            className={`w-1.5 rounded-full transition-all duration-300 ${
+              i === currentSlide
+                ? "h-6 bg-white"
+                : "h-1.5 bg-white/30 hover:bg-white/50"
             }`}
-            aria-label={`Slide ${i + 1}`}
+            aria-label={`Go to slide ${i + 1}`}
+            aria-current={i === currentSlide ? "true" : undefined}
+          />
+        ))}
+      </div>
+
+      {/* Mobile slide dots — horizontal bottom center */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2 md:hidden z-20">
+        {heroImages.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentSlide(i)}
+            className={`rounded-full transition-all duration-300 ${
+              i === currentSlide
+                ? "w-6 h-1.5 bg-white"
+                : "w-1.5 h-1.5 bg-white/30"
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
           />
         ))}
       </div>

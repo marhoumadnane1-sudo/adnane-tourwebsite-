@@ -52,6 +52,8 @@ export function FAQ() {
             >
               <button
                 onClick={() => setOpenIdx(openIdx === i ? null : i)}
+                aria-expanded={openIdx === i}
+                aria-controls={`faq-panel-${i}`}
                 className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left"
               >
                 <span className={cn(
@@ -75,6 +77,9 @@ export function FAQ() {
               <AnimatePresence>
                 {openIdx === i && (
                   <motion.div
+                    id={`faq-panel-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-btn-${i}`}
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}

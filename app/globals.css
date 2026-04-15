@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
+/* Fonts loaded via <link> in layout.tsx — no duplicate @import needed */
 
 [dir="rtl"] {
   font-family: 'Noto Sans Arabic', system-ui, sans-serif;
@@ -124,4 +123,33 @@
 
 .whatsapp-pulse {
   animation: whatsapp-pulse 2.5s ease-in-out infinite;
+}
+
+/* Popular Routes carousel — CSS animated infinite scroll */
+@keyframes routes-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    /* 8 cards × (230px width + 16px gap) = 1968px */
+    transform: translateX(-1968px);
+  }
+}
+
+.routes-carousel {
+  animation: routes-scroll 45s linear infinite;
+}
+
+/* Only pause on hover for devices that support hover (not touch) */
+@media (hover: hover) and (pointer: fine) {
+  .routes-carousel:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* Ensure animation never gets stuck on touch devices */
+@media (hover: none) {
+  .routes-carousel {
+    animation-play-state: running !important;
+  }
 }

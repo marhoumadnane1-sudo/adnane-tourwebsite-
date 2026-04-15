@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { motion, useAnimationControls } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { POPULAR_ROUTES } from "@/lib/routes";
 import { useBookingStore } from "@/lib/store";
@@ -13,22 +12,6 @@ export function PopularRoutes() {
 
   // Duplicate for seamless infinite loop
   const loopRoutes = [...POPULAR_ROUTES, ...POPULAR_ROUTES];
-
-  const controls = useAnimationControls();
-  const [paused, setPaused] = useState(false);
-
-  function handleHoverStart() {
-    setPaused(true);
-    controls.stop();
-  }
-
-  function handleHoverEnd() {
-    setPaused(false);
-    controls.start({
-      x: [null, "-50%"],
-      transition: { duration: 28, ease: "linear", repeat: Infinity },
-    });
-  }
 
   return (
     <section className="py-20 sm:py-28 bg-sand/40 overflow-hidden" id="routes">
@@ -58,40 +41,23 @@ export function PopularRoutes() {
         </motion.div>
       </div>
 
-      {/* Ticker — full-width */}
-      <div
-        className="relative w-full"
-        onMouseEnter={handleHoverStart}
-        onMouseLeave={handleHoverEnd}
-      >
-        {/* Edge fade masks */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-r from-[#f0e6cc] to-transparent" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none bg-gradient-to-l from-[#f0e6cc] to-transparent" />
+      {/* Ticker — full-width, CSS animated */}
+      <div className="relative w-full">
+        {/* Edge fade masks — smaller on mobile */}
+        <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-r from-[#f0e6cc] to-transparent" />
+        <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-l from-[#f0e6cc] to-transparent" />
 
-        <motion.div
-          className="flex gap-4 w-max"
-          animate={controls}
-          initial={{ x: "0%" }}
-          onViewportEnter={() => {
-            controls.start({
-              x: [null, "-50%"],
-              transition: { duration: 28, ease: "linear", repeat: Infinity },
-            });
-          }}
-          viewport={{ once: true }}
-        >
+        <div className="routes-carousel flex gap-4 w-max">
           {loopRoutes.map((route, idx) => {
-            // Vito price shown, labeled clearly
             const vitoPrice =
               currency === "EUR"
                 ? `€${(route.price / EUR_RATE).toFixed(0)}`
                 : `${route.price.toLocaleString("fr-MA")} DH`;
 
             return (
-              <motion.div
+              <div
                 key={`${route.from}-${route.to}-${idx}`}
-                whileHover={{ y: -6, boxShadow: "0 12px 40px rgba(26,26,46,0.14)" }}
-                className="bg-white rounded-2xl p-5 shadow-card w-[230px] flex-shrink-0 cursor-pointer group"
+                className="bg-white rounded-2xl p-5 shadow-card w-[230px] flex-shrink-0 hover:shadow-lg transition-shadow group"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-1.5 text-terracotta">
@@ -123,17 +89,17 @@ export function PopularRoutes() {
                     <p className="text-[10px] text-charcoal/30 leading-tight">per vehicle</p>
                   </div>
                   <Link
-                    href={`/book`}
+                    href="/book"
                     onClick={(e) => e.stopPropagation()}
                     className="bg-terracotta/10 hover:bg-terracotta text-terracotta hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-all duration-200 group-hover:bg-terracotta group-hover:text-white"
                   >
                     Book
                   </Link>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
 
       {/* Hint */}
@@ -145,7 +111,9 @@ export function PopularRoutes() {
           transition={{ delay: 0.6 }}
           className="text-center text-charcoal/40 text-xs mt-8"
         >
-          Mercedes Vito prices shown (main vehicle) · Hover to pause · All prices per vehicle, all-inclusive
+          Mercedes Vito prices shown (main vehicle) ·{" "}
+          <span className="hidden sm:inline">Hover to pause · </span>
+          All prices per vehicle, all-inclusive
         </motion.p>
       </div>
     </section>
