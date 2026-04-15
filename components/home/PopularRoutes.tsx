@@ -42,12 +42,12 @@ export function PopularRoutes() {
       </div>
 
       {/* Ticker — full-width, CSS animated */}
-      <div className="relative w-full">
+      <div className="relative w-full overflow-hidden">
         {/* Edge fade masks — smaller on mobile */}
-        <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-r from-[#f0e6cc] to-transparent" />
-        <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-24 z-10 pointer-events-none bg-gradient-to-l from-[#f0e6cc] to-transparent" />
+        <div className="absolute left-0 top-0 w-6 sm:w-16 md:w-32 h-full z-10 bg-gradient-to-r from-[#f0e6cc] to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 w-6 sm:w-16 md:w-32 h-full z-10 bg-gradient-to-l from-[#f0e6cc] to-transparent pointer-events-none" />
 
-        <div className="routes-carousel flex gap-4 w-max">
+        <div className="animate-scroll flex gap-4 w-max">
           {loopRoutes.map((route, idx) => {
             const vitoPrice =
               currency === "EUR"

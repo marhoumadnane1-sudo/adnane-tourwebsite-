@@ -82,9 +82,8 @@ export function Hero() {
           <div
             key={index}
             className={`absolute inset-0 transition-opacity duration-[1500ms] ease-in-out ${
-              index === currentSlide ? "opacity-100" : "opacity-0"
+              index === currentSlide ? "opacity-100 z-[2]" : "opacity-0 z-[1]"
             }`}
-            style={{ zIndex: index === currentSlide ? 2 : 1 }}
           >
             <Image
               src={image.src}
@@ -141,7 +140,7 @@ export function Hero() {
       </div>
 
       {/* Mobile slide dots — horizontal bottom center */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex gap-2 md:hidden z-20">
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 md:hidden z-20">
         {heroImages.map((_, i) => (
           <button
             key={i}

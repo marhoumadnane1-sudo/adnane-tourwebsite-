@@ -126,30 +126,31 @@
 }
 
 /* Popular Routes carousel — CSS animated infinite scroll */
-@keyframes routes-scroll {
+@keyframes scroll {
   0% {
     transform: translateX(0);
   }
   100% {
-    /* 8 cards × (230px width + 16px gap) = 1968px */
-    transform: translateX(-1968px);
+    transform: translateX(-50%);
   }
 }
 
-.routes-carousel {
-  animation: routes-scroll 45s linear infinite;
+.animate-scroll {
+  display: flex;
+  animation: scroll 45s linear infinite;
+  will-change: transform;
 }
 
-/* Only pause on hover for devices that support hover (not touch) */
+/* ONLY pause on real mouse hover — never on touch devices */
 @media (hover: hover) and (pointer: fine) {
-  .routes-carousel:hover {
+  .animate-scroll:hover {
     animation-play-state: paused;
   }
 }
 
-/* Ensure animation never gets stuck on touch devices */
-@media (hover: none) {
-  .routes-carousel {
+/* Force running on touch devices in case hover gets stuck */
+@media (hover: none), (pointer: coarse) {
+  .animate-scroll {
     animation-play-state: running !important;
   }
 }
